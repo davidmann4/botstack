@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  fb_id: 1
+  last_message_received: 2016-08-15 12:55:05
+  state_machine: 1
+
+two:
+  fb_id: 1
+  last_message_received: 2016-08-15 12:55:05
+  state_machine: 1
