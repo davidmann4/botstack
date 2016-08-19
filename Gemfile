@@ -15,7 +15,8 @@ gem 'coffee-rails', '~> 4.1.0'
 # gem 'therubyracer', platforms: :ruby
 
 gem 'config'
-
+gem 'gemoji'
+gem 'mechanize'
 gem 'messenger-ruby'
 
 
