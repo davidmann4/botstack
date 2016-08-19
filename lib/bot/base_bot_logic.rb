@@ -11,6 +11,15 @@ class BaseBotLogic
    end
   end
 
+
+  def self.get_message
+    if @fb_params.first_entry.callback.message?
+      @fb_params.first_entry.callback.text
+    else
+      nil
+    end
+  end
+
   def self.handle_user
     user_id = @fb_params.first_entry.sender_id
     user = User.find_by_fb_id user_id
