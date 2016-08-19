@@ -42,4 +42,20 @@ class BaseBotLogic
     bot_logic
   end
 
+  def self.webform(url)
+    a = Mechanize.new { |agent|
+      agent.user_agent_alias = 'Mac Safari'
+    }
+
+    a.get(url) do |page|
+      search_result = page.form_with(:name => 'searchform') do |search|
+        search.suche = get_message
+      end.submit
+
+      search_result.search("li.search-list-item > a").each  do |link|
+        puts link["title"]
+      end
+    end
+  end
+
 end
