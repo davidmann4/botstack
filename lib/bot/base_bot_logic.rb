@@ -41,6 +41,15 @@ class BaseBotLogic
    end
   end
 
+  def self.reply_image(img_url)
+    Messenger::Client.send(
+      Messenger::Request.new(
+        Messenger::Elements::Image.new(url: img_url),
+        @fb_params.first_entry.sender_id
+      )
+    )
+  end
+
   def self.reply_bubble
     if @fb_params.first_entry.callback.message?
 
@@ -154,6 +163,21 @@ class BaseBotLogic
       search_url = url + @fb_params.first_entry.callback.payload
       search_url['search_result_'] = ''
       puts search_url
+
+      a = Mechanize.new { |agent|
+        agent.user_agent_alias = 'Mac Safari'
+      }
+
+      a.get(search_url) do |page|
+        #puts page.content
+        #document = Nokogiri::HTML(page.content)
+        results = page.search(".ingredients__container").first
+
+        kit = IMGKit.new(results)    
+
+        file = kit.to_file('public/image.jpg')
+        reply_image("http://i.imgur.com/EQy5FhK.jpg")
+      end
     end
   end
 

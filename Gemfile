@@ -16,6 +16,8 @@ gem 'coffee-rails', '~> 4.1.0'
 
 gem 'config'
 gem 'gemoji'
+gem 'wkhtmltoimage-binary'
+gem 'imgkit'
 gem 'mechanize'
 gem 'messenger-ruby'
 
