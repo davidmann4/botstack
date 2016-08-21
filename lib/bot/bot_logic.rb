@@ -5,7 +5,10 @@ require 'mechanize'
 class BotLogic < BaseBotLogic
 
 	def self.bot_logic
-		reply_message get_message
+		#webform "http://www.chefkoch.de/"
+		reply_bubble
+
+
 	end
 
 end

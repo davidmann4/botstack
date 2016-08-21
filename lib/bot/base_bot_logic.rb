@@ -1,3 +1,5 @@
+require 'mechanize'
+
 class BaseBotLogic
 
   def self.reply_message(msg)
@@ -11,6 +13,62 @@ class BaseBotLogic
    end
   end
 
+  def self.reply_button
+    if @fb_params.first_entry.callback.message?
+
+      buttons = Messenger::Templates::Buttons.new(
+        text: 'Some Cool Text',
+        buttons: [
+          Messenger::Elements::Button.new(
+            type: 'web_url',
+            title: 'Show Website',
+            value: 'https://petersapparel.parseapp.com'
+          ),
+          Messenger::Elements::Button.new(
+            type: 'web_url',
+            title: 'Show Website',
+            value: 'https://petersapparel.parseapp.com'
+          )
+        ]
+      )
+
+      Messenger::Client.send(
+        Messenger::Request.new(
+          buttons,
+          @fb_params.first_entry.sender_id
+        )
+      )
+   end
+  end
+
+  def self.reply_bubble
+    if @fb_params.first_entry.callback.message?
+
+        bubble1 = Messenger::Elements::Bubble.new(
+          title: 'Bubble 1',
+          subtitle: 'Cool Bubble',
+          #item_url: 'http://lorempixel.com/400/400/cats',
+          image_url: 'http://lorempixel.com/400/400/cats',
+          buttons: [
+            Messenger::Elements::Button.new(
+              type: 'postback',
+              title: 'Show Website',
+              value: 'TEST'
+            )
+          ]
+        )
+
+        #lets create Generic template
+        generic = Messenger::Templates::Generic.new(
+          elements: [bubble1,bubble1,bubble1,bubble1,bubble1]
+        )
+
+        #now send Generic template to the user
+        Messenger::Client.send(
+          Messenger::Request.new(generic, @fb_params.first_entry.sender_id)
+        )
+   end
+  end
 
   def self.get_message
     if @fb_params.first_entry.callback.message?
