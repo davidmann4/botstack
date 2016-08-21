@@ -100,19 +100,60 @@ class BaseBotLogic
     bot_logic
   end
 
-  def self.webform(url)
-    a = Mechanize.new { |agent|
-      agent.user_agent_alias = 'Mac Safari'
-    }
+  def self.search_website_and_reply_with_bubbles(url)
+    if @fb_params.first_entry.callback.message?
+      a = Mechanize.new { |agent|
+        agent.user_agent_alias = 'Mac Safari'
+      }
 
-    a.get(url) do |page|
-      search_result = page.form_with(:name => 'searchform') do |search|
-        search.suche = get_message
-      end.submit
+      a.get(url) do |page|
+        search_result = page.form_with(:name => 'searchform') do |search|
+          search.suche = get_message
+        end.submit
 
-      search_result.search("li.search-list-item > a").each  do |link|
-        puts link["title"]
+        search_results_bubbles = []
+
+        search_result.search("li.search-list-item > a").each  do |link|
+          img = link.css("img").first
+          puts img
+          puts link.css(".search-list-item-title")
+
+          if !img.nil? && img["srcset"].starts_with?("http") && search_results_bubbles.size < 8
+            bubble = Messenger::Elements::Bubble.new(
+              title: link.css(".search-list-item-title").text,
+              subtitle: link["title"],
+              #item_url: 'http://lorempixel.com/400/400/cats',
+              image_url: img["srcset"],
+              buttons: [
+                Messenger::Elements::Button.new(
+                  type: 'postback',
+                  title: 'Zutaten Anzeigen',
+                  value: 'search_result_' + link["href"]
+                )
+              ]
+            )     
+
+            search_results_bubbles.push(bubble)   
+          end
+        end
+
+        generic = Messenger::Templates::Generic.new(
+          elements: search_results_bubbles
+        )
+
+        Messenger::Client.send(
+          Messenger::Request.new(generic, @fb_params.first_entry.sender_id)
+        )
+
       end
+    end
+  end
+
+  def self.handle_search_result(url)
+    if @fb_params.first_entry.callback.postback?
+      search_url = url + @fb_params.first_entry.callback.payload
+      search_url['search_result_'] = ''
+      puts search_url
     end
   end
 
