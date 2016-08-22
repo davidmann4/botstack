@@ -158,7 +158,8 @@ class BaseBotLogic
     end
   end
 
-  def self.handle_search_result(url)
+  def self.handle_search_result(url)    
+
     if @fb_params.first_entry.callback.postback?
       search_url = url + @fb_params.first_entry.callback.payload
       search_url['search_result_'] = ''
@@ -173,10 +174,11 @@ class BaseBotLogic
         #document = Nokogiri::HTML(page.content)
         results = page.search(".ingredients__container").first
 
-        kit = IMGKit.new(results)    
+        kit = IMGKit.new("<meta charset='UTF-8'/>"+results.to_html, :quality => 10, :width => 300)    
+        kit.stylesheets << 'public/search_result.css'
 
-        file = kit.to_file('public/image.jpg')
-        reply_image("http://i.imgur.com/EQy5FhK.jpg")
+        file = kit.to_file('public/Z33V12.jpg')
+        reply_image("/public/Z33V12.jpg")
       end
     end
   end
