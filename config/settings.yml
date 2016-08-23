@@ -1,2 +1,2 @@
-page_access_token: YOUR_TOKEN_HERE
+page_access_token: <%= ENV["FB_PAGE_ACCESS_TOKEN"] %>
 verify_token: github
