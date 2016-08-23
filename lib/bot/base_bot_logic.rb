@@ -174,11 +174,11 @@ class BaseBotLogic
         #document = Nokogiri::HTML(page.content)
         results = page.search(".ingredients__container").first
 
-        kit = IMGKit.new("<meta charset='UTF-8'/>"+results.to_html, :quality => 10, :width => 300)    
+        kit = IMGKit.new("<meta charset='UTF-8'/>"+results.to_html, :quality => 100, :width => 300)    
         kit.stylesheets << 'public/search_result.css'
 
         file = kit.to_file('public/Z33V12.jpg')
-        reply_image("/public/Z33V12.jpg")
+        reply_image(ENV["DOMAIN_NAME"] + "/Z33V12.jpg")
       end
     end
   end
