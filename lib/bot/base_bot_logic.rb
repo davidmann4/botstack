@@ -13,6 +13,24 @@ class BaseBotLogic
    end
   end
 
+  def self.reply_image(img_url)
+    Messenger::Client.send(
+      Messenger::Request.new(
+        Messenger::Elements::Image.new(url: img_url),
+        @fb_params.first_entry.sender_id
+      )
+    )
+  end
+
+  def self.reply_html(html)
+    kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)    
+    kit.stylesheets << 'public/search_result.css'
+
+    file = kit.to_file('public/html_response.jpg')
+    reply_image(ENV["DOMAIN_NAME"] + "/html_response.jpg")
+  end
+
+  #TODO: maje it useful
   def self.reply_button
     if @fb_params.first_entry.callback.message?
 
@@ -41,15 +59,7 @@ class BaseBotLogic
    end
   end
 
-  def self.reply_image(img_url)
-    Messenger::Client.send(
-      Messenger::Request.new(
-        Messenger::Elements::Image.new(url: img_url),
-        @fb_params.first_entry.sender_id
-      )
-    )
-  end
-
+  #TODO: maje it useful
   def self.reply_bubble
     if @fb_params.first_entry.callback.message?
 
@@ -88,6 +98,8 @@ class BaseBotLogic
   end
 
   def self.handle_user
+
+    #binding.pry 
     user_id = @fb_params.first_entry.sender_id
     user = User.find_by_fb_id user_id
 
@@ -104,28 +116,40 @@ class BaseBotLogic
   end
 
   def self.handle_request(fb_params)
+    if fb_params.params[:entry].nil? #wtf is this?
+      puts "ERROR NO entry Value"
+      return
+    end
+
     @fb_params = fb_params
     @current_user = handle_user
     bot_logic
+      
+    #rescue Exception => e
+    #  puts e
   end
 
-  def self.search_website_and_reply_with_bubbles(url)
+  def self.search_request_on_website(options)
+    options = {
+      form_name: 'searchform',
+      result_css_selector: 'li.search-list-item > a',
+      image_css_selector: 'img'
+    }.merge(options)
+    
     if @fb_params.first_entry.callback.message?
       a = Mechanize.new { |agent|
         agent.user_agent_alias = 'Mac Safari'
       }
 
-      a.get(url) do |page|
-        search_result = page.form_with(:name => 'searchform') do |search|
+      a.get(options[:url]) do |page|
+        search_result = page.form_with(:name => options[:form_name]) do |search|
           search.suche = get_message
         end.submit
 
         search_results_bubbles = []
 
-        search_result.search("li.search-list-item > a").each  do |link|
-          img = link.css("img").first
-          puts img
-          puts link.css(".search-list-item-title")
+        search_result.search(options[:result_css_selector]).each  do |link|
+          img = link.css(options[:image_css_selector]).first
 
           if !img.nil? && img["srcset"].starts_with?("http") && search_results_bubbles.size < 8
             bubble = Messenger::Elements::Bubble.new(
@@ -158,10 +182,14 @@ class BaseBotLogic
     end
   end
 
-  def self.handle_search_result(url)    
+  def self.handle_search_result(options) 
+    options = {
+      result_css_selector: '.result'
+    }.merge(options)
+
 
     if @fb_params.first_entry.callback.postback?
-      search_url = url + @fb_params.first_entry.callback.payload
+      search_url = options[:url] + @fb_params.first_entry.callback.payload
       search_url['search_result_'] = ''
       puts search_url
 
@@ -170,15 +198,9 @@ class BaseBotLogic
       }
 
       a.get(search_url) do |page|
-        #puts page.content
-        #document = Nokogiri::HTML(page.content)
-        results = page.search(".ingredients__container").first
+        results = page.search(options[:result_css_selector]).first
 
-        kit = IMGKit.new("<meta charset='UTF-8'/>"+results.to_html, :quality => 100, :width => 300)    
-        kit.stylesheets << 'public/search_result.css'
-
-        file = kit.to_file('public/Z33V12.jpg')
-        reply_image(ENV["DOMAIN_NAME"] + "/Z33V12.jpg")
+        reply_html(results.to_html)
       end
     end
   end
