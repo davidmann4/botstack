@@ -23,11 +23,13 @@ class BaseBotLogic
   end
 
   def self.reply_html(html)
-    kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)    
-    kit.stylesheets << 'public/search_result.css'
+    if @fb_params.first_entry.callback.message?
+      kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)    
+      kit.stylesheets << 'public/search_result.css'
 
-    file = kit.to_file('public/html_response.jpg')
-    reply_image(ENV["DOMAIN_NAME"] + "/html_response.jpg")
+      file = kit.to_file('public/html_response.jpg')
+      reply_image(ENV["DOMAIN_NAME"] + "/html_response.jpg")
+    end
   end
 
   #TODO: maje it useful
@@ -129,6 +131,10 @@ class BaseBotLogic
     #  puts e
   end
 
+
+
+  ## websearch MODULE
+
   def self.search_request_on_website(options)
     options = {
       form_name: 'searchform',
@@ -187,6 +193,7 @@ class BaseBotLogic
       result_css_selector: '.result'
     }.merge(options)
 
+    puts options
 
     if @fb_params.first_entry.callback.postback?
       search_url = options[:url] + @fb_params.first_entry.callback.payload
@@ -204,5 +211,25 @@ class BaseBotLogic
       end
     end
   end
+
+  ## EMOJI MODULE
+
+  def self.get_emoji(name)
+    Emoji.find_by_alias(name).raw
+  end
+
+  def self.reply_emoji(name)
+    reply_message get_emoji(name)
+  end
+
+  def compute_emojis(content)
+    EmojiParser.detokenize(content)
+  end
+
+  def parse_emojis(content)
+    EmojiParser.tokenize()
+  end
+
+
 
 end
