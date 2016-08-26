@@ -23,7 +23,7 @@ class BaseBotLogic
   end
 
   def self.reply_html(html)
-    if @fb_params.first_entry.callback.message?
+    if @fb_params.first_entry.callback.message? or @fb_params.first_entry.callback.postback?
       kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)    
       kit.stylesheets << 'public/search_result.css'
 
