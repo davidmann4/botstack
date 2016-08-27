@@ -1,15 +1,34 @@
 require 'mechanize'
+require 'spintax_parser'
+class String
+  include SpintaxParser
+end
 
 class BaseBotLogic
 
-  def self.reply_message(msg)
+  def self.reply_message(msg, options={})
+
+    options = {
+      resolve_emoji: true,
+      spintax: true
+    }.merge(options)
+
     if @fb_params.first_entry.callback.message?
-    Messenger::Client.send(
-      Messenger::Request.new(
-        Messenger::Elements::Text.new(text: msg),
-        @fb_params.first_entry.sender_id
+
+      if(options[:resolve_emoji])
+        msg = compute_emojis(msg)
+      end
+
+      if(options[:spintax])
+        msg = msg.unspin
+      end
+
+      Messenger::Client.send(
+        Messenger::Request.new(
+          Messenger::Elements::Text.new(text: msg),
+          @fb_params.first_entry.sender_id
+        )
       )
-    )
    end
   end
 
@@ -127,8 +146,8 @@ class BaseBotLogic
     @current_user = handle_user
     bot_logic
       
-    #rescue Exception => e
-    #  puts e
+    rescue Exception => e
+      puts e
   end
 
 
@@ -222,11 +241,11 @@ class BaseBotLogic
     reply_message get_emoji(name)
   end
 
-  def compute_emojis(content)
+  def self.compute_emojis(content)
     EmojiParser.detokenize(content)
   end
 
-  def parse_emojis(content)
+  def self.parse_emojis(content)
     EmojiParser.tokenize()
   end
 

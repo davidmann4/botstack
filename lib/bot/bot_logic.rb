@@ -3,8 +3,8 @@
 class BotLogic < BaseBotLogic
 
 	def self.bot_logic
-
-		
+		ENV["DOMAIN_NAME"] = "https://7fede8f7.ngrok.io"
+		#binding.pry
 		#reply_html "<b>hello world </b>"
 		
 		#reply_message "hello world"

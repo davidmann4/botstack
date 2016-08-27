@@ -18,6 +18,8 @@ gem 'coffee-rails', '~> 4.1.0'
 gem 'config'
 gem 'gemoji'
 gem 'gemoji-parser'
+gem 'spintax_parser'
+
 gem 'wkhtmltoimage-binary'
 gem 'imgkit'
 gem 'mechanize'
