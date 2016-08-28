@@ -249,6 +249,31 @@ class BaseBotLogic
     EmojiParser.tokenize()
   end
 
+  ## State Machine Module
+   #--> self.state_action
+   #--> self.state_go
+   #--> self.state_reset
 
+  ## Broadcast Module
+   #--> self.handle_blacklist
+   #--> self.broadcast_all
+   #--> self.broadcast_list
+   #--> self.offer_subscription
+   #--> self.handle_subscription_response
+
+  ## User Roulette Module
+   #--> self.roulette_message
+   #--> self.handle_roulette_messege_response
+
+  ## Browser Module
+   #--> self.
+   #--> self.
+
+  ## CSV Lookup Module
+   #--> Google Spreadsheet Lookup Module
+
+  ## Question Module
+   #--> self.ask_questions
+   #--> self.compute_answer
 
 end
