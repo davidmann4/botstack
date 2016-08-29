@@ -158,7 +158,8 @@ class BaseBotLogic
     options = {
       form_name: 'searchform',
       result_css_selector: 'li.search-list-item > a',
-      image_css_selector: 'img'
+      image_css_selector: 'img',
+      button_text: 'more infos'
     }.merge(options)
     
     if @fb_params.first_entry.callback.message?
@@ -185,7 +186,7 @@ class BaseBotLogic
               buttons: [
                 Messenger::Elements::Button.new(
                   type: 'postback',
-                  title: 'Zutaten Anzeigen',
+                  title: options[:button_text],
                   value: 'search_result_' + link["href"]
                 )
               ]
