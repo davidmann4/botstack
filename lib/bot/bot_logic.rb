@@ -16,12 +16,10 @@ class BotLogic < BaseBotLogic
 		#    url: "http://www.chefkoch.de",
 		#    result_css_selector: ".ingredients__container"
 		#)
-		
+
 		state_action 0, :greeting
 		state_action 1, :turorial
 		state_action 2, :bye
-
-		puts @state_handled
 	end
 
 	def self.greeting
