@@ -1,5 +1,6 @@
 require 'mechanize'
 require 'spintax_parser'
+
 class String
   include SpintaxParser
 end
@@ -13,7 +14,7 @@ class BaseBotLogic
       spintax: true
     }.merge(options)
 
-    if @fb_params.first_entry.callback.message?
+    if @fb_params.text
 
       if(options[:resolve_emoji])
         msg = compute_emojis(msg)
@@ -23,26 +24,31 @@ class BaseBotLogic
         msg = msg.unspin
       end
 
-      Messenger::Client.send(
-        Messenger::Request.new(
-          Messenger::Elements::Text.new(text: msg),
-          @fb_params.first_entry.sender_id
-        )
+      Bot.deliver(
+        recipient: @fb_params.sender,
+        message: {
+          text: msg
+        }
       )
-   end
+    end
   end
 
   def self.reply_image(img_url)
-    Messenger::Client.send(
-      Messenger::Request.new(
-        Messenger::Elements::Image.new(url: img_url),
-        @fb_params.first_entry.sender_id
-      )
+    Bot.deliver(
+      recipient: @fb_params.sender,
+      message: {
+        attachment: {
+          type: 'image',
+          payload: {
+            url: img_url
+          }
+        }
+      }
     )
   end
 
   def self.reply_html(html)
-    if @fb_params.first_entry.callback.message? or @fb_params.first_entry.callback.postback?
+    if @fb_params.text or @fb_params.payload
       kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)    
       kit.stylesheets << 'public/search_result.css'
 
@@ -111,8 +117,8 @@ class BaseBotLogic
   end
 
   def self.get_message
-    if @fb_params.first_entry.callback.message?
-      @fb_params.first_entry.callback.text
+    if @fb_params.text
+      @fb_params.text
     else
       nil
     end
@@ -121,7 +127,7 @@ class BaseBotLogic
   def self.handle_user
 
     #binding.pry 
-    user_id = @fb_params.first_entry.sender_id
+    user_id = @fb_params.sender["id"].to_i
     user = User.find_by_fb_id user_id
 
     if user.nil?
@@ -137,10 +143,6 @@ class BaseBotLogic
   end
 
   def self.handle_request(fb_params)
-    if fb_params.params[:entry].nil? #wtf is this?
-      puts "ERROR NO entry Value"
-      return
-    end
 
     @fb_params = fb_params
     @current_user = handle_user
@@ -162,7 +164,7 @@ class BaseBotLogic
       button_text: 'more infos'
     }.merge(options)
     
-    if @fb_params.first_entry.callback.message?
+    if @fb_params.text
       a = Mechanize.new { |agent|
         agent.user_agent_alias = 'Mac Safari'
       }
@@ -178,45 +180,52 @@ class BaseBotLogic
           img = link.css(options[:image_css_selector]).first
 
           if !img.nil? && img["srcset"].starts_with?("http") && search_results_bubbles.size < 8
-            bubble = Messenger::Elements::Bubble.new(
+            bubble = {
               title: link.css(".search-list-item-title").text,
               subtitle: link["title"],
               #item_url: 'http://lorempixel.com/400/400/cats',
               image_url: img["srcset"],
               buttons: [
-                Messenger::Elements::Button.new(
+                {
                   type: 'postback',
                   title: options[:button_text],
-                  value: 'search_result_' + link["href"]
-                )
+                  payload: 'search_result_' + link["href"]
+                }
               ]
-            )     
+            }     
 
             search_results_bubbles.push(bubble)   
           end
         end
 
-        generic = Messenger::Templates::Generic.new(
-          elements: search_results_bubbles
-        )
+        generic = {
+          "template_type": "generic",
+          "elements": search_results_bubbles
+        }
 
-        Messenger::Client.send(
-          Messenger::Request.new(generic, @fb_params.first_entry.sender_id)
+        puts generic
+
+        Bot.deliver(
+          recipient: @fb_params.sender,
+          message: {
+            attachment: {
+              type: 'template',
+              payload: generic
+            }
+          }
         )
 
       end
     end
   end
 
-  def self.handle_search_result(options) 
+  def self.handle_search_result(options={}) 
     options = {
       result_css_selector: '.result'
     }.merge(options)
 
-    puts options
-
-    if @fb_params.first_entry.callback.postback?
-      search_url = options[:url] + @fb_params.first_entry.callback.payload
+    if @fb_params.payload
+      search_url = options[:url] + @fb_params.payload
       search_url['search_result_'] = ''
       puts search_url
 

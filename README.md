@@ -1,6 +1,6 @@
 # fb-chatbot-framework-rails
 
-This is a base project for creating FB Chatbots. We use the messenger-ruby gem - [https://github.com/netguru/messenger-ruby](https://github.com/netguru/messenger-ruby)
+This is a base project for creating FB Chatbots. We use the facebook-messenger gem - [https://github.com/hyperoslo/facebook-messenger](https://github.com/hyperoslo/facebook-messenger)
 
 ## Requirements
 just your normal rails app

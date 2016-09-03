@@ -23,5 +23,8 @@ module FbChatbotFrameworkRails
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
     config.autoload_paths += %W(#{config.root}/lib/bot)
+
+    config.paths.add File.join('app', 'bots'), glob: File.join('**', '*.rb')
+    config.autoload_paths += Dir[Rails.root.join('app', 'bots', '*')]
   end
 end
