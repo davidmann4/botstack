@@ -294,7 +294,7 @@ class BaseBotLogic
   end
 
   def self.state_reset
-    state_go 0
+    state_go Settings.state_machine_reset_to
   end
 
   ## Broadcast Module
