@@ -14,7 +14,7 @@ class BaseBotLogic
       spintax: true
     }.merge(options)
 
-    if @fb_params.text
+    if @request_type == "TEXT"
 
       if(options[:resolve_emoji])
         msg = compute_emojis(msg)
@@ -34,21 +34,23 @@ class BaseBotLogic
   end
 
   def self.reply_image(img_url)
-    Bot.deliver(
-      recipient: @fb_params.sender,
-      message: {
-        attachment: {
-          type: 'image',
-          payload: {
-            url: img_url
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
+      Bot.deliver(
+        recipient: @fb_params.sender,
+        message: {
+          attachment: {
+            type: 'image',
+            payload: {
+              url: img_url
+            }
           }
         }
-      }
-    )
+      )
+    end
   end
 
   def self.reply_html(html)
-    if @fb_params.text or @fb_params.payload
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
       kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)    
       kit.stylesheets << 'public/search_result.css'
 
@@ -59,7 +61,7 @@ class BaseBotLogic
 
   #TODO: maje it useful
   def self.reply_button
-    if @fb_params.first_entry.callback.message?
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
 
       buttons = Messenger::Templates::Buttons.new(
         text: 'Some Cool Text',
@@ -88,7 +90,7 @@ class BaseBotLogic
 
   #TODO: maje it useful
   def self.reply_bubble
-    if @fb_params.first_entry.callback.message?
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
 
         bubble1 = Messenger::Elements::Bubble.new(
           title: 'Bubble 1',
@@ -117,7 +119,7 @@ class BaseBotLogic
   end
 
   def self.get_message
-    if @fb_params.text
+    if @request_type == "TEXT"
       @fb_params.text
     else
       nil
@@ -142,9 +144,10 @@ class BaseBotLogic
     user
   end
 
-  def self.handle_request(fb_params)
+  def self.handle_request(fb_params, type="text")
 
     @fb_params = fb_params
+    @request_type = type
     @current_user = handle_user
     bot_logic
       
@@ -164,7 +167,7 @@ class BaseBotLogic
       button_text: 'more infos'
     }.merge(options)
     
-    if @fb_params.text
+    if @request_type == "TEXT"
       a = Mechanize.new { |agent|
         agent.user_agent_alias = 'Mac Safari'
       }
@@ -224,7 +227,7 @@ class BaseBotLogic
       result_css_selector: '.result'
     }.merge(options)
 
-    if @fb_params.payload
+    if @request_type == "CALLBACK"
       search_url = options[:url] + @fb_params.payload
       search_url['search_result_'] = ''
       puts search_url
