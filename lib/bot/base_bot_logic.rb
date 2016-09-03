@@ -138,9 +138,18 @@ class BaseBotLogic
       user.state_machine = 0
     end
 
-    user.last_message_received = Time.now
-    user.save!
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
 
+      # reset statemachine if longer ago than 5 minutes
+      if Time.now - user.last_message_received > (60 * 5)
+        @current_user = user
+        state_reset
+      end
+
+      user.last_message_received = Time.now
+    end
+
+    user.save!
     user
   end
 
@@ -149,6 +158,7 @@ class BaseBotLogic
     @fb_params = fb_params
     @request_type = type
     @current_user = handle_user
+
     @state_handled = false    
     bot_logic
       
@@ -206,8 +216,6 @@ class BaseBotLogic
           "template_type": "generic",
           "elements": search_results_bubbles
         }
-
-        puts generic
 
         Bot.deliver(
           recipient: @fb_params.sender,
