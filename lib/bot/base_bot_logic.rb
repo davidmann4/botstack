@@ -149,6 +149,7 @@ class BaseBotLogic
     @fb_params = fb_params
     @request_type = type
     @current_user = handle_user
+    @state_handled = false    
     bot_logic
       
     rescue Exception => e
@@ -263,9 +264,30 @@ class BaseBotLogic
   end
 
   ## State Machine Module
-   #--> self.state_action
-   #--> self.state_go
-   #--> self.state_reset
+  def self.state_action(required_state, action)
+    if @request_type == "TEXT"
+      if @state_handled == false and @current_user.state_machine == required_state 
+        self.send(action)
+        @state_handled = true
+      end
+    end
+  end
+
+  def self.state_go(state=-1)
+    if state == -1
+      @current_user.state_machine = @current_user.state_machine + 1
+    else
+      @current_user.state_machine = state
+    end
+
+    puts "going state: " + @current_user.state_machine.to_s
+
+    @current_user.save!
+  end
+
+  def self.state_reset
+    state_go 0
+  end
 
   ## Broadcast Module
    #--> self.handle_blacklist
