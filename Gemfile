@@ -25,6 +25,8 @@ gem 'imgkit'
 gem 'mechanize'
 gem 'messenger-ruby'
 
+gem 'facebook-messenger'
+
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'

@@ -1,5 +1,6 @@
 require 'mechanize'
 require 'spintax_parser'
+
 class String
   include SpintaxParser
 end
@@ -13,7 +14,7 @@ class BaseBotLogic
       spintax: true
     }.merge(options)
 
-    if @fb_params.first_entry.callback.message?
+    if @request_type == "TEXT"
 
       if(options[:resolve_emoji])
         msg = compute_emojis(msg)
@@ -23,26 +24,33 @@ class BaseBotLogic
         msg = msg.unspin
       end
 
-      Messenger::Client.send(
-        Messenger::Request.new(
-          Messenger::Elements::Text.new(text: msg),
-          @fb_params.first_entry.sender_id
-        )
+      Bot.deliver(
+        recipient: @fb_params.sender,
+        message: {
+          text: msg
+        }
       )
-   end
+    end
   end
 
   def self.reply_image(img_url)
-    Messenger::Client.send(
-      Messenger::Request.new(
-        Messenger::Elements::Image.new(url: img_url),
-        @fb_params.first_entry.sender_id
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
+      Bot.deliver(
+        recipient: @fb_params.sender,
+        message: {
+          attachment: {
+            type: 'image',
+            payload: {
+              url: img_url
+            }
+          }
+        }
       )
-    )
+    end
   end
 
   def self.reply_html(html)
-    if @fb_params.first_entry.callback.message? or @fb_params.first_entry.callback.postback?
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
       kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)    
       kit.stylesheets << 'public/search_result.css'
 
@@ -53,7 +61,7 @@ class BaseBotLogic
 
   #TODO: maje it useful
   def self.reply_button
-    if @fb_params.first_entry.callback.message?
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
 
       buttons = Messenger::Templates::Buttons.new(
         text: 'Some Cool Text',
@@ -82,7 +90,7 @@ class BaseBotLogic
 
   #TODO: maje it useful
   def self.reply_bubble
-    if @fb_params.first_entry.callback.message?
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
 
         bubble1 = Messenger::Elements::Bubble.new(
           title: 'Bubble 1',
@@ -111,8 +119,8 @@ class BaseBotLogic
   end
 
   def self.get_message
-    if @fb_params.first_entry.callback.message?
-      @fb_params.first_entry.callback.text
+    if @request_type == "TEXT"
+      @fb_params.text
     else
       nil
     end
@@ -121,7 +129,7 @@ class BaseBotLogic
   def self.handle_user
 
     #binding.pry 
-    user_id = @fb_params.first_entry.sender_id
+    user_id = @fb_params.sender["id"].to_i
     user = User.find_by_fb_id user_id
 
     if user.nil?
@@ -130,22 +138,55 @@ class BaseBotLogic
       user.state_machine = 0
     end
 
-    user.last_message_received = Time.now
-    user.save!
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
 
+      # reset statemachine if longer ago than 5 minutes
+      if Time.now - user.last_message_received > (60 * 5)
+        @current_user = user
+        state_reset
+      end
+
+      user.last_message_received = Time.now
+    end
+
+    user.save!
     user
   end
 
-  def self.handle_request(fb_params)
-    if fb_params.params[:entry].nil? #wtf is this?
-      puts "ERROR NO entry Value"
-      return
-    end
+  def self.handle_request(fb_params, type="TEXT")
 
     @fb_params = fb_params
+    @request_type = type
     @current_user = handle_user
+
+    @state_handled = false    
+    
+    #handle different attachments the user could send
+    if type == "TEXT"   
+      if !fb_params.messaging["message"]["attachments"].nil?
+        attachment_type = fb_params.messaging["message"]["attachments"][0]["type"] #so wrong lol
+
+        if attachment_type == "location"
+          @request_type = "LOCATION"
+          fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
+        elsif attachment_type == "image"
+          @request_type = "IMAGE"
+          fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
+        elsif attachment_type == "audio"
+          @request_type = "AUDIO"
+          fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]  
+        elsif attachment_type == "fallback"
+          @request_type = "ATTACHMENT_UNKNOWN"
+          fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
+        else
+          puts "UNKNOWN ATTACHMENT: "  + attachment_type        
+        end
+      end
+    end
+
     bot_logic
-      
+    
+
     rescue Exception => e
       puts e
   end
@@ -162,7 +203,7 @@ class BaseBotLogic
       button_text: 'more infos'
     }.merge(options)
     
-    if @fb_params.first_entry.callback.message?
+    if @request_type == "TEXT"
       a = Mechanize.new { |agent|
         agent.user_agent_alias = 'Mac Safari'
       }
@@ -178,45 +219,50 @@ class BaseBotLogic
           img = link.css(options[:image_css_selector]).first
 
           if !img.nil? && img["srcset"].starts_with?("http") && search_results_bubbles.size < 8
-            bubble = Messenger::Elements::Bubble.new(
+            bubble = {
               title: link.css(".search-list-item-title").text,
               subtitle: link["title"],
               #item_url: 'http://lorempixel.com/400/400/cats',
               image_url: img["srcset"],
               buttons: [
-                Messenger::Elements::Button.new(
+                {
                   type: 'postback',
                   title: options[:button_text],
-                  value: 'search_result_' + link["href"]
-                )
+                  payload: 'search_result_' + link["href"]
+                }
               ]
-            )     
+            }     
 
             search_results_bubbles.push(bubble)   
           end
         end
 
-        generic = Messenger::Templates::Generic.new(
-          elements: search_results_bubbles
-        )
+        generic = {
+          "template_type": "generic",
+          "elements": search_results_bubbles
+        }
 
-        Messenger::Client.send(
-          Messenger::Request.new(generic, @fb_params.first_entry.sender_id)
+        Bot.deliver(
+          recipient: @fb_params.sender,
+          message: {
+            attachment: {
+              type: 'template',
+              payload: generic
+            }
+          }
         )
 
       end
     end
   end
 
-  def self.handle_search_result(options) 
+  def self.handle_search_result(options={}) 
     options = {
       result_css_selector: '.result'
     }.merge(options)
 
-    puts options
-
-    if @fb_params.first_entry.callback.postback?
-      search_url = options[:url] + @fb_params.first_entry.callback.payload
+    if @request_type == "CALLBACK"
+      search_url = options[:url] + @fb_params.payload
       search_url['search_result_'] = ''
       puts search_url
 
@@ -251,9 +297,30 @@ class BaseBotLogic
   end
 
   ## State Machine Module
-   #--> self.state_action
-   #--> self.state_go
-   #--> self.state_reset
+  def self.state_action(required_state, action)
+    if @request_type == "TEXT"
+      if @state_handled == false and @current_user.state_machine == required_state 
+        self.send(action)
+        @state_handled = true
+      end
+    end
+  end
+
+  def self.state_go(state=-1)
+    if state == -1
+      @current_user.state_machine = @current_user.state_machine + 1
+    else
+      @current_user.state_machine = state
+    end
+
+    puts "going state: " + @current_user.state_machine.to_s
+
+    @current_user.save!
+  end
+
+  def self.state_reset
+    state_go Settings.state_machine_reset_to
+  end
 
   ## Broadcast Module
    #--> self.handle_blacklist
