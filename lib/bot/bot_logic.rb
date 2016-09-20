@@ -3,7 +3,10 @@
 class BotLogic < BaseBotLogic
 
 	def self.bot_logic
-		ENV["DOMAIN_NAME"] = "https://06eeff44.ngrok.io"
+		ENV["DOMAIN_NAME"] = "https://490bb8f0.ngrok.io"
+
+		#binding.pry
+		reply_message "{Hallo|Hello|servas|hiho|yoyo}"
 
 		#search_request_on_website(
 		#    url: "http://www.chefkoch.de/",
@@ -17,9 +20,9 @@ class BotLogic < BaseBotLogic
 		#    result_css_selector: ".ingredients__container"
 		#)
 
-		state_action 0, :greeting
-		state_action 1, :turorial
-		state_action 2, :bye
+		#state_action 0, :greeting
+		#state_action 1, :turorial
+		#state_action 2, :bye
 	end
 
 	def self.greeting
