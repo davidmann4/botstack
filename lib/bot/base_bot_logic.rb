@@ -7,11 +7,17 @@ end
 
 class BaseBotLogic
 
+  def self.send_message(msg, recipient, options)
+    options.merge({recipient: recipient})
+    reply_message(msg, options)
+  end
+
   def self.reply_message(msg, options={})
 
     options = {
       resolve_emoji: true,
-      spintax: true
+      spintax: true,
+      recipient: @fb_params.sender
     }.merge(options)
 
     if @request_type == "TEXT"
@@ -25,7 +31,7 @@ class BaseBotLogic
       end
 
       Bot.deliver(
-        recipient: @fb_params.sender,
+        recipient: options[:recipient],
         message: {
           text: msg
         }
@@ -323,8 +329,21 @@ class BaseBotLogic
   end
 
   ## Broadcast Module
-   #--> self.handle_blacklist
-   #--> self.broadcast_all
+  
+  def self.handle_blacklist
+    if get_message == "stop"
+      blacklist = Blacklist.new 
+      blacklist.user_id = @current_user.id
+      blacklist.status = true
+    end
+  end
+
+  def self.broadcast_all(msg)
+    User.all.each do |user|
+      send_message(msg, user.fb_id)
+    end
+  end
+  
    #--> self.broadcast_list
    #--> self.offer_subscription
    #--> self.handle_subscription_response
