@@ -92,7 +92,7 @@ class BotLogic < BaseBotLogic
 		user_date = Date.parse @current_user.profile[:due_date] 
 		server_date = Date.parse Time.now.to_s
 
-		38 - ((user_date - server_date).to_i / 7)
+		40 - ((user_date - server_date).to_i / 7)
 	end
 
 	def self.output_current_week
