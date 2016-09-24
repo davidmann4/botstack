@@ -2,42 +2,102 @@
 
 class BotLogic < BaseBotLogic
 
+	def self.setup
+		Facebook::Messenger::Thread.set(
+		  setting_type: 'greeting',
+		  greeting: {
+		    text: 'Welcome!'
+		  }
+		)
+
+		#Facebook::Messenger::Thread.set(
+		#  setting_type: 'call_to_actions',
+		#  thread_state: 'new_thread',
+		#  call_to_actions: [
+		#    {
+		#      payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_WELCOME'
+		#    }
+		#  ]
+		#)
+
+
+		Facebook::Messenger::Thread.set(
+		  setting_type: 'call_to_actions',
+		  thread_state: 'existing_thread',
+		  call_to_actions: [
+		    {
+		      type: 'postback',
+		      title: 'Reset',
+		      payload: 'RESET_BOT'
+		    }
+		  ]
+		)
+	end
+
+
 	def self.bot_logic
-		ENV["DOMAIN_NAME"] = "https://490bb8f0.ngrok.io"
+		ENV["DOMAIN_NAME"] = "https://82be97d0.ngrok.io"
 
 		#binding.pry
-		reply_message "{Hallo|Hello|servas|hiho|yoyo}"
 
-		#search_request_on_website(
-		#    url: "http://www.chefkoch.de/",
-		#    form_name: 'searchform',
-		#    result_css_selector: '.search-list-item > a',
-		#    image_css_selector: 'img'
-		#)
+		if @request_type == "CALLBACK" and @fb_params.payload == "RESET_BOT"
+			@current_user.delete
+			reply_message "Removed all your data from our servers."
+			return
+		end
 
-		#handle_search_result(
-		#    url: "http://www.chefkoch.de",
-		#    result_css_selector: ".ingredients__container"
-		#)
-
-		#state_action 0, :greeting
-		#state_action 1, :turorial
-		#state_action 2, :bye
+		state_action 0, :greeting
+		state_action 1, :subscribe
+		state_action 2, :confirm
+		state_action 3, :onboarded
 	end
 
 	def self.greeting
-		reply_message "greeting"
+		reply_message "To make it a little easy. Could you type your due date again just this way: 28-04-2017?"
 		state_go
 	end 
 
-	def self.turorial
-		reply_message "turorial"
-		state_go
+	def self.subscribe
+		due_date = Date.parse get_message
+
+		@current_user.profile = {due_date: due_date.to_s}
+		@current_user.save!
+
+		reply_quick_reply "Okay #{due_date.to_s}. Did I get it right?"
+		state_go		
+	rescue ArgumentError
+		reply_message "{Sorry I do not undestand this format|Can you try again? Format is DD/MM/YYYY}"
 	end 
 
-	def self.bye
-		reply_message "bye"
-		state_reset
+	def self.confirm
+		if get_message == "Yes"
+			subscribe_user("pregnant")	
+			state_go
+			reply_message "Awwww sweet! You are all set now. I'll start to track your pregnancy for you. Can't wait (emojis)"
+		else
+			reply_message "Ohh Sorry, please use this format: DD/MM/YYYY"
+			@current_user.profile = {}
+			@current_user.save!
+			state_reset
+		end		
+	end
+
+	def self.onboarded
+		output_current_week		
 	end 
+
+	### helper functions
+
+	def self.calculate_current_week
+		user_date = Date.parse @current_user.profile[:due_date] 
+		server_date = Date.parse Time.now.to_s
+
+		38 - ((user_date - server_date).to_i / 7)
+	end
+
+	def self.output_current_week
+		current_week = calculate_current_week
+		reply_message "you are in week number #{current_week}"
+	end
 
 end

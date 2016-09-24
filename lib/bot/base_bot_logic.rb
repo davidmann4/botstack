@@ -20,7 +20,7 @@ class BaseBotLogic
       recipient: @fb_params.sender
     }.merge(options)
 
-    if @request_type == "TEXT"
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
 
       if(options[:resolve_emoji])
         msg = compute_emojis(msg)
@@ -50,6 +50,29 @@ class BaseBotLogic
               url: img_url
             }
           }
+        }
+      )
+    end
+  end
+
+  def self.reply_quick_reply(msg)
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
+      Bot.deliver(
+        recipient: @fb_params.sender,
+        message: {
+          text: msg,
+          quick_replies: [
+            {
+              content_type: 'text',
+              title: 'Yes',
+              payload: 'QUICK_YES'
+            },
+            {
+              content_type: 'text',
+              title: 'No',
+              payload: 'QUICK_NO'
+            }
+          ]
         }
       )
     end
@@ -144,7 +167,7 @@ class BaseBotLogic
       user.state_machine = 0
     end
 
-    if @request_type == "TEXT" or @request_type == "CALLBACK"
+    if !user.last_message_received.nil? and (@request_type == "TEXT" or @request_type == "CALLBACK")
 
       # reset statemachine if longer ago than 5 minutes
       if Time.now - user.last_message_received > (60 * 5)
@@ -193,8 +216,8 @@ class BaseBotLogic
     bot_logic
     
 
-    rescue Exception => e
-      puts e
+    #rescue Exception => e
+    #  puts e
   end
 
 
@@ -304,7 +327,7 @@ class BaseBotLogic
 
   ## State Machine Module
   def self.state_action(required_state, action)
-    if @request_type == "TEXT"
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
       if @state_handled == false and @current_user.state_machine == required_state 
         self.send(action)
         @state_handled = true
@@ -343,8 +366,22 @@ class BaseBotLogic
       send_message(msg, user.fb_id)
     end
   end
-  
-   #--> self.broadcast_list
+
+  def self.subscribe_user(campaign_name)
+    subscription = Subscription.new 
+    subscription.user_id = @current_user.id
+    subscription.campaign_name = campaign_name
+
+    subscription.save!
+  end
+
+  def self.broadcast_list(campaign_name, msg)
+    users = Subscription.where campaign_name: campaign_name
+
+    users.each do |user|
+      send_message(msg, user.fb_id)
+    end
+  end
    #--> self.offer_subscription
    #--> self.handle_subscription_response
 

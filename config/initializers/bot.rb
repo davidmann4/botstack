@@ -10,4 +10,5 @@ unless Rails.env.production?
   end
 
   bot_files.each { |file| require_dependency file }
+
 end
