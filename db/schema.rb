@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160924191614) do
+ActiveRecord::Schema.define(version: 20160925193802) do
 
   create_table "blackllists", force: :cascade do |t|
     t.integer  "user_id"
@@ -23,8 +23,9 @@ ActiveRecord::Schema.define(version: 20160924191614) do
   create_table "notifications", force: :cascade do |t|
     t.string   "campaign_name"
     t.integer  "user_id"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.integer  "subscription_step"
   end
 
   create_table "subscriptions", force: :cascade do |t|
