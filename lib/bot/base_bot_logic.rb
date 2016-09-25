@@ -165,9 +165,10 @@ class BaseBotLogic
       user = User.new 
       user.fb_id = user_id
       user.state_machine = 0
+      user.last_message_received = Time.now
     end
 
-    if !user.last_message_received.nil? and (@request_type == "TEXT" or @request_type == "CALLBACK")
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
 
       # reset statemachine if longer ago than 5 minutes
       if Time.now - user.last_message_received > (60 * 5)
