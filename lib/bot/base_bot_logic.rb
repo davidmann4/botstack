@@ -383,6 +383,11 @@ class BaseBotLogic
       send_message(msg, user.fb_id)
     end
   end
+
+  def self.last_step_for_user(user_id)
+    notification = Notification.where user_id: user_id, :order => "ssid"
+    notification.first
+  end
    #--> self.offer_subscription
    #--> self.handle_subscription_response
 
@@ -400,5 +405,43 @@ class BaseBotLogic
   ## Question Module
    #--> self.ask_questions
    #--> self.compute_answer
+
+
+  ## Setup Module
+
+  def self.set_welcome_message(message)
+    Facebook::Messenger::Thread.set(
+      setting_type: 'greeting',
+      greeting: {
+        text: message
+      }
+    )
+  end
+
+  def self.set_get_started_button(callback_name)
+      Facebook::Messenger::Thread.set(
+        setting_type: 'call_to_actions',
+        thread_state: 'new_thread',
+        call_to_actions: [
+          {
+            payload: callback_name
+          }
+        ]
+      )
+  end
+
+  def self.set_bot_menu
+    Facebook::Messenger::Thread.set(
+      setting_type: 'call_to_actions',
+      thread_state: 'existing_thread',
+      call_to_actions: [
+        {
+          type: 'postback',
+          title: 'Reset',
+          payload: 'RESET_BOT'
+        }
+      ]
+    )
+  end
 
 end

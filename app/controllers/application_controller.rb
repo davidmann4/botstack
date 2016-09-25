@@ -8,7 +8,15 @@ class ApplicationController < ActionController::Base
   	Facebook::Messenger::Subscriptions.subscribe
 
   	render json: {
-    	bluebuy_server: "OK"
+    	botstack_server: "OK"
+    }
+  end
+
+  def cron
+  	BotLogic::cron
+
+  	render json: {
+    	botstack_server: "OK"
     }
   end
 

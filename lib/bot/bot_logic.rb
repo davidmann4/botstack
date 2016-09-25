@@ -3,37 +3,14 @@
 class BotLogic < BaseBotLogic
 
 	def self.setup
-		Facebook::Messenger::Thread.set(
-		  setting_type: 'greeting',
-		  greeting: {
-		    text: 'Welcome!'
-		  }
-		)
-
-		#Facebook::Messenger::Thread.set(
-		#  setting_type: 'call_to_actions',
-		#  thread_state: 'new_thread',
-		#  call_to_actions: [
-		#    {
-		#      payload: 'DEVELOPER_DEFINED_PAYLOAD_FOR_WELCOME'
-		#    }
-		#  ]
-		#)
-
-
-		Facebook::Messenger::Thread.set(
-		  setting_type: 'call_to_actions',
-		  thread_state: 'existing_thread',
-		  call_to_actions: [
-		    {
-		      type: 'postback',
-		      title: 'Reset',
-		      payload: 'RESET_BOT'
-		    }
-		  ]
-		)
+		set_welcome_message "Welcome!"
+		set_get_started_button "bot_start_payload"
+		set_bot_menu
 	end
 
+	def self.cron
+
+	end
 
 	def self.bot_logic
 		ENV["DOMAIN_NAME"] = "https://82be97d0.ngrok.io"
@@ -73,7 +50,7 @@ class BotLogic < BaseBotLogic
 		if get_message == "Yes"
 			subscribe_user("pregnant")	
 			state_go
-			reply_message "Awwww sweet! You are all set now. I'll start to track your pregnancy for you. Can't wait (emojis)"
+			reply_message "Awwww sweet! You are all set now. I'll start to track your pregnancy for you. Can't wait :bride_with_veil::heart::baby_bottle:"
 		else
 			reply_message "Ohh Sorry, please use this format: DD/MM/YYYY"
 			@current_user.profile = {}

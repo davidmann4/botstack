@@ -16,5 +16,5 @@ Bot.on :optin do |optin|
 end
 
 Bot.on :delivery do |delivery|
-  BotLogic::handle_request(delivery, "DELIVERY")
+  #BotLogic::handle_request(delivery, "DELIVERY")
 end
