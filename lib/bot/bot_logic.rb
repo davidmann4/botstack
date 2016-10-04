@@ -9,7 +9,7 @@ class BotLogic < BaseBotLogic
 	end
 
 	def self.cron
-
+		broadcast_all ":princess:"
 	end
 
 	def self.bot_logic

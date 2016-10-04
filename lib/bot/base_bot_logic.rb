@@ -7,7 +7,7 @@ end
 
 class BaseBotLogic
 
-  def self.send_message(msg, recipient, options)
+  def self.send_message(msg, recipient, options={})
     options.merge({recipient: recipient})
     reply_message(msg, options)
   end
