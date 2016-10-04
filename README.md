@@ -1,6 +1,8 @@
 # botstack
 
-This is a base project for creating FB Chatbots. We use the facebook-messenger gem - [https://github.com/hyperoslo/facebook-messenger](https://github.com/hyperoslo/facebook-messenger)
+![botstack-logo](https://cloud.githubusercontent.com/assets/1736570/18914167/33193656-858c-11e6-9151-b383bd1c821c.png)
+
+This is a base project for creating FB Chatbots. It has a state machine and User Management and allows you to add functionality with modules.
 
 ## Quickstart
 
@@ -123,10 +125,16 @@ end
 ```
 
 ## Installation
+clone the repo
+copy config/settings.yml to settings.local.yml and enter your api keys
+use ngrok or another vpn to tunnel your connection
+run the following commands
 ```console
 bundle install
 rails s
 ```
+set the webhook to https://tunnel_url/bot and use your token (default: github)
+
 
 ## Contributing
   - Fork it!
@@ -134,3 +142,7 @@ rails s
   - Commit your changes: `git commit -am 'Useful information about your new features'`
   - Push to the branch: `git push origin my-new-feature`
   - Submit a pull request on the `Development` branch :D
+  
+## gems used
+* [https://github.com/hyperoslo/facebook-messenger](https://github.com/hyperoslo/facebook-messenger)
+ 
