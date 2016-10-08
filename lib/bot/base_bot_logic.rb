@@ -55,24 +55,14 @@ class BaseBotLogic
     end
   end
 
-  def self.reply_quick_reply(msg)
+  def self.reply_quick_reply(msg, options)
+    options ||= %W(Yes No)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
       Bot.deliver(
         recipient: @fb_params.sender,
         message: {
           text: msg,
-          quick_replies: [
-            {
-              content_type: 'text',
-              title: 'Yes',
-              payload: 'QUICK_YES'
-            },
-            {
-              content_type: 'text',
-              title: 'No',
-              payload: 'QUICK_NO'
-            }
-          ]
+          quick_replies: options.map { |option| {content_type: 'text', title: option, payload: "QUICK_#{option.upcase}"} }
         }
       )
     end
