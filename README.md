@@ -20,6 +20,9 @@ Put all your logic into lib/bot. We've already prepared everything for you to ki
 * ATTACHMENT_UNKNOWN -> @fb_params has the url to the ATTACHMENT_UNKNOWN (mostly http links fucked up with fb outbound link system)
 **@current_user** hold infos of your current user (last seen, state machine, user id ...)
 
+![botstack grafik-x](https://cloud.githubusercontent.com/assets/1736570/19266341/6955d374-8fa9-11e6-8454-15f0b76730f6.png)
+
+
 ## Reply Module
 
 This function will reply a message back to the user who sent one. you can use Spintax and Emojs.
