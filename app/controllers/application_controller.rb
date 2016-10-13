@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
   end
 
   def cron
-  	$bot.cron
+  	BotLogic::cron
 
   	render json: {
     	botstack_server: "OK"

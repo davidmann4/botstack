@@ -25,3 +25,4 @@ class BotLogic < BaseBotLogic
   end 
 
 end
+
