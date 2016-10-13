@@ -103,23 +103,23 @@ Example usage of the State Machine Module:
 ```ruby
 class BotLogic < BaseBotLogic
 
-	def bot_logic
+	def self.bot_logic
 		state_action 0, :greeting
 		state_action 1, :turorial
 		state_action 2, :bye
 	end
 
-	def greeting
+	def self.greeting
 		reply_message "greeting"
 		state_go
 	end 
 
-	def turorial
+	def self.turorial
 		reply_message "turorial"
 		state_go
 	end 
 
-	def bye
+	def self.bye
 		reply_message "bye"
 		state_reset
 	end 

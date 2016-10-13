@@ -7,12 +7,12 @@ end
 
 class BaseBotLogic
 
-  def send_message(msg, recipient, options={})
+  def self.send_message(msg, recipient, options={})
     options.merge({recipient: recipient})
     reply_message(msg, options)
   end
 
-  def reply_message(msg, options={})
+  def self.reply_message(msg, options={})
 
     options = {
       resolve_emoji: true,
@@ -39,7 +39,7 @@ class BaseBotLogic
     end
   end
 
-  def reply_image(img_url)
+  def self.reply_image(img_url)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
       Bot.deliver(
         recipient: @fb_params.sender,
@@ -55,7 +55,7 @@ class BaseBotLogic
     end
   end
 
-  def reply_quick_reply(msg, options)
+  def self.reply_quick_reply(msg, options)
     options ||= %W(Yes No)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
       Bot.deliver(
@@ -68,7 +68,7 @@ class BaseBotLogic
     end
   end
 
-  def reply_html(html)
+  def self.reply_html(html)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
       kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)
       kit.stylesheets << 'public/search_result.css'
@@ -79,7 +79,7 @@ class BaseBotLogic
   end
 
   #TODO: maje it useful
-  def reply_button
+  def self.reply_button
     if @request_type == "TEXT" or @request_type == "CALLBACK"
 
       buttons = Messenger::Templates::Buttons.new(
@@ -108,7 +108,7 @@ class BaseBotLogic
   end
 
   #TODO: maje it useful
-  def reply_bubble
+  def self.reply_bubble
     if @request_type == "TEXT" or @request_type == "CALLBACK"
 
         bubble1 = Messenger::Elements::Bubble.new(
@@ -137,7 +137,7 @@ class BaseBotLogic
    end
   end
 
-  def get_message
+  def self.get_message
     if @request_type == "TEXT"
       @fb_params.text
     else
@@ -145,7 +145,7 @@ class BaseBotLogic
     end
   end
 
-  def handle_user
+  def self.handle_user
 
     #binding.pry
     user_id = @fb_params.sender["id"].to_i
@@ -173,7 +173,7 @@ class BaseBotLogic
     user
   end
 
-  def handle_request(fb_params, type="TEXT")
+  def self.handle_request(fb_params, type="TEXT")
 
     @fb_params = fb_params
     @request_type = type
@@ -215,7 +215,7 @@ class BaseBotLogic
 
   ## websearch MODULE
 
-  def search_request_on_website(options)
+  def self.search_request_on_website(options)
     options = {
       form_name: 'searchform',
       result_css_selector: 'li.search-list-item > a',
@@ -276,7 +276,7 @@ class BaseBotLogic
     end
   end
 
-  def handle_search_result(options={})
+  def self.handle_search_result(options={})
     options = {
       result_css_selector: '.result'
     }.merge(options)
@@ -300,33 +300,33 @@ class BaseBotLogic
 
   ## EMOJI MODULE
 
-  def get_emoji(name)
+  def self.get_emoji(name)
     Emoji.find_by_alias(name).raw
   end
 
-  def reply_emoji(name)
+  def self.reply_emoji(name)
     reply_message get_emoji(name)
   end
 
-  def compute_emojis(content)
+  def self.compute_emojis(content)
     EmojiParser.detokenize(content)
   end
 
-  def parse_emojis(content)
+  def self.parse_emojis(content)
     EmojiParser.tokenize()
   end
 
   ## State Machine Module
-  def state_action(required_state, action)
+  def self.state_action(required_state, action)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
       if @state_handled == false and @current_user.state_machine == required_state
-        send(action)
+        self.send(action)
         @state_handled = true
       end
     end
   end
 
-  def state_go(state=-1)
+  def self.state_go(state=-1)
     if state == -1
       @current_user.state_machine = @current_user.state_machine + 1
     else
@@ -338,13 +338,13 @@ class BaseBotLogic
     @current_user.save!
   end
 
-  def state_reset
+  def self.state_reset
     state_go Settings.state_machine_reset_to
   end
 
   ## Broadcast Module
 
-  def handle_blacklist
+  def self.handle_blacklist
     if get_message == "stop"
       blacklist = Blacklist.new
       blacklist.user_id = @current_user.id
@@ -352,13 +352,13 @@ class BaseBotLogic
     end
   end
 
-  def broadcast_all(msg)
+  def self.broadcast_all(msg)
     User.all.each do |user|
       send_message(msg, user.fb_id)
     end
   end
 
-  def subscribe_user(campaign_name)
+  def self.subscribe_user(campaign_name)
     subscription = Subscription.new
     subscription.user_id = @current_user.id
     subscription.campaign_name = campaign_name
@@ -366,7 +366,7 @@ class BaseBotLogic
     subscription.save!
   end
 
-  def broadcast_list(campaign_name, msg)
+  def self.broadcast_list(campaign_name, msg)
     users = Subscription.where campaign_name: campaign_name
 
     users.each do |user|
@@ -374,32 +374,32 @@ class BaseBotLogic
     end
   end
 
-  def last_step_for_user(user_id)
+  def self.last_step_for_user(user_id)
     notification = Notification.where user_id: user_id, :order => "ssid"
     notification.first
   end
-   #--> offer_subscription
-   #--> handle_subscription_response
+   #--> self.offer_subscription
+   #--> self.handle_subscription_response
 
   ## User Roulette Module
-   #--> roulette_message
-   #--> handle_roulette_messege_response
+   #--> self.roulette_message
+   #--> self.handle_roulette_messege_response
 
   ## Browser Module
-   #-->
-   #-->
+   #--> self.
+   #--> self.
 
   ## CSV Lookup Module
    #--> Google Spreadsheet Lookup Module
 
   ## Question Module
-   #--> ask_questions
-   #--> compute_answer
+   #--> self.ask_questions
+   #--> self.compute_answer
 
 
   ## Setup Module
 
-  def set_welcome_message(message)
+  def self.set_welcome_message(message)
     Facebook::Messenger::Thread.set(
       setting_type: 'greeting',
       greeting: {
@@ -408,7 +408,7 @@ class BaseBotLogic
     )
   end
 
-  def set_get_started_button(callback_name)
+  def self.set_get_started_button(callback_name)
       Facebook::Messenger::Thread.set(
         setting_type: 'call_to_actions',
         thread_state: 'new_thread',
@@ -420,7 +420,7 @@ class BaseBotLogic
       )
   end
 
-  def set_bot_menu(options=%W(Reset))
+  def self.set_bot_menu(options = %W(Reset))
     Facebook::Messenger::Thread.set(
       setting_type: 'call_to_actions',
       thread_state: 'existing_thread',
