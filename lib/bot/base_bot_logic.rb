@@ -7,12 +7,12 @@ end
 
 class BaseBotLogic
 
-  def self.send_message(msg, recipient, options={})
+  def send_message(msg, recipient, options={})
     options.merge({recipient: recipient})
     reply_message(msg, options)
   end
 
-  def self.reply_message(msg, options={})
+  def reply_message(msg, options={})
 
     options = {
       resolve_emoji: true,
@@ -39,7 +39,7 @@ class BaseBotLogic
     end
   end
 
-  def self.reply_image(img_url)
+  def reply_image(img_url)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
       Bot.deliver(
         recipient: @fb_params.sender,
@@ -55,7 +55,7 @@ class BaseBotLogic
     end
   end
 
-  def self.reply_quick_reply(msg, options)
+  def reply_quick_reply(msg, options)
     options ||= %W(Yes No)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
       Bot.deliver(
@@ -68,9 +68,9 @@ class BaseBotLogic
     end
   end
 
-  def self.reply_html(html)
+  def reply_html(html)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
-      kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)    
+      kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)
       kit.stylesheets << 'public/search_result.css'
 
       file = kit.to_file('public/html_response.jpg')
@@ -79,7 +79,7 @@ class BaseBotLogic
   end
 
   #TODO: maje it useful
-  def self.reply_button
+  def reply_button
     if @request_type == "TEXT" or @request_type == "CALLBACK"
 
       buttons = Messenger::Templates::Buttons.new(
@@ -108,7 +108,7 @@ class BaseBotLogic
   end
 
   #TODO: maje it useful
-  def self.reply_bubble
+  def reply_bubble
     if @request_type == "TEXT" or @request_type == "CALLBACK"
 
         bubble1 = Messenger::Elements::Bubble.new(
@@ -137,7 +137,7 @@ class BaseBotLogic
    end
   end
 
-  def self.get_message
+  def get_message
     if @request_type == "TEXT"
       @fb_params.text
     else
@@ -145,14 +145,14 @@ class BaseBotLogic
     end
   end
 
-  def self.handle_user
+  def handle_user
 
-    #binding.pry 
+    #binding.pry
     user_id = @fb_params.sender["id"].to_i
     user = User.find_by_fb_id user_id
 
     if user.nil?
-      user = User.new 
+      user = User.new
       user.fb_id = user_id
       user.state_machine = 0
       user.last_message_received = Time.now
@@ -173,16 +173,16 @@ class BaseBotLogic
     user
   end
 
-  def self.handle_request(fb_params, type="TEXT")
+  def handle_request(fb_params, type="TEXT")
 
     @fb_params = fb_params
     @request_type = type
     @current_user = handle_user
 
-    @state_handled = false    
-    
+    @state_handled = false
+
     #handle different attachments the user could send
-    if type == "TEXT"   
+    if type == "TEXT"
       if !fb_params.messaging["message"]["attachments"].nil?
         attachment_type = fb_params.messaging["message"]["attachments"][0]["type"] #so wrong lol
 
@@ -194,18 +194,18 @@ class BaseBotLogic
           @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
         elsif attachment_type == "audio"
           @request_type = "AUDIO"
-          @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]  
+          @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
         elsif attachment_type == "fallback"
           @request_type = "ATTACHMENT_UNKNOWN"
           @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
         else
-          puts "UNKNOWN ATTACHMENT: "  + attachment_type        
+          puts "UNKNOWN ATTACHMENT: "  + attachment_type
         end
       end
     end
 
     bot_logic
-    
+
 
     #rescue Exception => e
     #  puts e
@@ -215,14 +215,14 @@ class BaseBotLogic
 
   ## websearch MODULE
 
-  def self.search_request_on_website(options)
+  def search_request_on_website(options)
     options = {
       form_name: 'searchform',
       result_css_selector: 'li.search-list-item > a',
       image_css_selector: 'img',
       button_text: 'more infos'
     }.merge(options)
-    
+
     if @request_type == "TEXT"
       a = Mechanize.new { |agent|
         agent.user_agent_alias = 'Mac Safari'
@@ -251,9 +251,9 @@ class BaseBotLogic
                   payload: 'search_result_' + link["href"]
                 }
               ]
-            }     
+            }
 
-            search_results_bubbles.push(bubble)   
+            search_results_bubbles.push(bubble)
           end
         end
 
@@ -276,7 +276,7 @@ class BaseBotLogic
     end
   end
 
-  def self.handle_search_result(options={}) 
+  def handle_search_result(options={})
     options = {
       result_css_selector: '.result'
     }.merge(options)
@@ -300,33 +300,33 @@ class BaseBotLogic
 
   ## EMOJI MODULE
 
-  def self.get_emoji(name)
+  def get_emoji(name)
     Emoji.find_by_alias(name).raw
   end
 
-  def self.reply_emoji(name)
+  def reply_emoji(name)
     reply_message get_emoji(name)
   end
 
-  def self.compute_emojis(content)
+  def compute_emojis(content)
     EmojiParser.detokenize(content)
   end
 
-  def self.parse_emojis(content)
+  def parse_emojis(content)
     EmojiParser.tokenize()
   end
 
   ## State Machine Module
-  def self.state_action(required_state, action)
+  def state_action(required_state, action)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
-      if @state_handled == false and @current_user.state_machine == required_state 
-        self.send(action)
+      if @state_handled == false and @current_user.state_machine == required_state
+        send(action)
         @state_handled = true
       end
     end
   end
 
-  def self.state_go(state=-1)
+  def state_go(state=-1)
     if state == -1
       @current_user.state_machine = @current_user.state_machine + 1
     else
@@ -338,35 +338,35 @@ class BaseBotLogic
     @current_user.save!
   end
 
-  def self.state_reset
+  def state_reset
     state_go Settings.state_machine_reset_to
   end
 
   ## Broadcast Module
-  
-  def self.handle_blacklist
+
+  def handle_blacklist
     if get_message == "stop"
-      blacklist = Blacklist.new 
+      blacklist = Blacklist.new
       blacklist.user_id = @current_user.id
       blacklist.status = true
     end
   end
 
-  def self.broadcast_all(msg)
+  def broadcast_all(msg)
     User.all.each do |user|
       send_message(msg, user.fb_id)
     end
   end
 
-  def self.subscribe_user(campaign_name)
-    subscription = Subscription.new 
+  def subscribe_user(campaign_name)
+    subscription = Subscription.new
     subscription.user_id = @current_user.id
     subscription.campaign_name = campaign_name
 
     subscription.save!
   end
 
-  def self.broadcast_list(campaign_name, msg)
+  def broadcast_list(campaign_name, msg)
     users = Subscription.where campaign_name: campaign_name
 
     users.each do |user|
@@ -374,32 +374,32 @@ class BaseBotLogic
     end
   end
 
-  def self.last_step_for_user(user_id)
+  def last_step_for_user(user_id)
     notification = Notification.where user_id: user_id, :order => "ssid"
     notification.first
   end
-   #--> self.offer_subscription
-   #--> self.handle_subscription_response
+   #--> offer_subscription
+   #--> handle_subscription_response
 
   ## User Roulette Module
-   #--> self.roulette_message
-   #--> self.handle_roulette_messege_response
+   #--> roulette_message
+   #--> handle_roulette_messege_response
 
   ## Browser Module
-   #--> self.
-   #--> self.
+   #-->
+   #-->
 
   ## CSV Lookup Module
    #--> Google Spreadsheet Lookup Module
 
   ## Question Module
-   #--> self.ask_questions
-   #--> self.compute_answer
+   #--> ask_questions
+   #--> compute_answer
 
 
   ## Setup Module
 
-  def self.set_welcome_message(message)
+  def set_welcome_message(message)
     Facebook::Messenger::Thread.set(
       setting_type: 'greeting',
       greeting: {
@@ -408,7 +408,7 @@ class BaseBotLogic
     )
   end
 
-  def self.set_get_started_button(callback_name)
+  def set_get_started_button(callback_name)
       Facebook::Messenger::Thread.set(
         setting_type: 'call_to_actions',
         thread_state: 'new_thread',
@@ -420,8 +420,7 @@ class BaseBotLogic
       )
   end
 
-  def self.set_bot_menu(options)
-    options ||= %W(Reset)
+  def set_bot_menu(options=%W(Reset))
     Facebook::Messenger::Thread.set(
       setting_type: 'call_to_actions',
       thread_state: 'existing_thread',
