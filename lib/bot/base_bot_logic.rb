@@ -70,7 +70,7 @@ class BaseBotLogic
 
   def self.reply_html(html)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
-      kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)    
+      kit = IMGKit.new("<meta charset='UTF-8'/>"+html, :quality => 100, :width => 300)
       kit.stylesheets << 'public/search_result.css'
 
       file = kit.to_file('public/html_response.jpg')
@@ -147,12 +147,12 @@ class BaseBotLogic
 
   def self.handle_user
 
-    #binding.pry 
+    #binding.pry
     user_id = @fb_params.sender["id"].to_i
     user = User.find_by_fb_id user_id
 
     if user.nil?
-      user = User.new 
+      user = User.new
       user.fb_id = user_id
       user.state_machine = 0
       user.last_message_received = Time.now
@@ -179,10 +179,10 @@ class BaseBotLogic
     @request_type = type
     @current_user = handle_user
 
-    @state_handled = false    
-    
+    @state_handled = false
+
     #handle different attachments the user could send
-    if type == "TEXT"   
+    if type == "TEXT"
       if !fb_params.messaging["message"]["attachments"].nil?
         attachment_type = fb_params.messaging["message"]["attachments"][0]["type"] #so wrong lol
 
@@ -194,18 +194,18 @@ class BaseBotLogic
           @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
         elsif attachment_type == "audio"
           @request_type = "AUDIO"
-          @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]  
+          @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
         elsif attachment_type == "fallback"
           @request_type = "ATTACHMENT_UNKNOWN"
           @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
         else
-          puts "UNKNOWN ATTACHMENT: "  + attachment_type        
+          puts "UNKNOWN ATTACHMENT: "  + attachment_type
         end
       end
     end
 
     bot_logic
-    
+
 
     #rescue Exception => e
     #  puts e
@@ -222,7 +222,7 @@ class BaseBotLogic
       image_css_selector: 'img',
       button_text: 'more infos'
     }.merge(options)
-    
+
     if @request_type == "TEXT"
       a = Mechanize.new { |agent|
         agent.user_agent_alias = 'Mac Safari'
@@ -251,9 +251,9 @@ class BaseBotLogic
                   payload: 'search_result_' + link["href"]
                 }
               ]
-            }     
+            }
 
-            search_results_bubbles.push(bubble)   
+            search_results_bubbles.push(bubble)
           end
         end
 
@@ -276,7 +276,7 @@ class BaseBotLogic
     end
   end
 
-  def self.handle_search_result(options={}) 
+  def self.handle_search_result(options={})
     options = {
       result_css_selector: '.result'
     }.merge(options)
@@ -319,7 +319,7 @@ class BaseBotLogic
   ## State Machine Module
   def self.state_action(required_state, action)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
-      if @state_handled == false and @current_user.state_machine == required_state 
+      if @state_handled == false and @current_user.state_machine == required_state
         self.send(action)
         @state_handled = true
       end
@@ -343,10 +343,10 @@ class BaseBotLogic
   end
 
   ## Broadcast Module
-  
+
   def self.handle_blacklist
     if get_message == "stop"
-      blacklist = Blacklist.new 
+      blacklist = Blacklist.new
       blacklist.user_id = @current_user.id
       blacklist.status = true
     end
@@ -359,7 +359,7 @@ class BaseBotLogic
   end
 
   def self.subscribe_user(campaign_name)
-    subscription = Subscription.new 
+    subscription = Subscription.new
     subscription.user_id = @current_user.id
     subscription.campaign_name = campaign_name
 
@@ -420,8 +420,7 @@ class BaseBotLogic
       )
   end
 
-  def self.set_bot_menu(options)
-    options ||= %W(Reset)
+  def self.set_bot_menu(options = %W(Reset))
     Facebook::Messenger::Thread.set(
       setting_type: 'call_to_actions',
       thread_state: 'existing_thread',
