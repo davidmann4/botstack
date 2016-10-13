@@ -4,4 +4,6 @@ Rails.application.routes.draw do
 
   get '/subscribe', to: 'application#subscribe'
   get '/cron', to: 'application#cron'
+
+  get '/images', to: 'application#images'
 end

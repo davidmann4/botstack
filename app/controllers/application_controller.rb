@@ -20,5 +20,10 @@ class ApplicationController < ActionController::Base
     }
   end
 
+  def images
+    @images = Image.all
+    render json: @images 
+  end
+
 
 end

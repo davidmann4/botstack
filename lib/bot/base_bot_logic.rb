@@ -191,7 +191,7 @@ class BaseBotLogic
           @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
         elsif attachment_type == "image"
           @request_type = "IMAGE"
-          @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
+          @fb_params2 = fb_params.messaging["message"]["attachments"][0]["payload"]
         elsif attachment_type == "audio"
           @request_type = "AUDIO"
           @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
@@ -207,8 +207,8 @@ class BaseBotLogic
     bot_logic
 
 
-    #rescue Exception => e
-    #  puts e
+    rescue Exception => e
+      puts e
   end
 
 
