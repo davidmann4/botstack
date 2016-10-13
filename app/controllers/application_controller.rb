@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
 
   def images
     @images = Image.all
-    render json: @images 
+    render json: @images.map { |image| image.url }
   end
 
 

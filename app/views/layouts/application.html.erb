@@ -5,6 +5,55 @@
   <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
   <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
   <%= csrf_meta_tags %>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/jquery-backstretch/2.0.3/jquery.backstretch.min.js"></script>
+	<script>
+
+
+	  $( document ).ready(function() {
+	    $.getJSON( "images", function( data ) {
+	    	console.log(data)
+		  $("body").backstretch(data, {duration: 4000});
+		});
+	});
+
+    var lastplaylistlength = 0;
+	 function polltracks(){
+        $.getJSON( "/images", function( data ) {
+            var items = [];
+            tracks = []
+            console.log(data);
+            $.each( data, function( key, val ) {
+                tracks.push(val);
+            });
+            if (lastplaylistlength < data.length){
+                showOverlay();
+            }
+            lastplaylistlength = data.length
+        });
+    }
+    $(function() {
+        // Handler for .ready() called.
+        $("#overlay>img").hide();
+        $("#overlay-wrapper").hide();
+        $("#playlist").click(playNextTrack);
+    });
+    setInterval(function(){ polltracks(); }, 3000);
+
+var timeout;
+    function showOverlay(){
+        $("#overlay-wrapper").show();
+        $("#overlay>img").hide();
+        rnd = getRandomIntInclusive(1,7);
+        activetrack = tracks[tracks.length-1];
+        $("#username").text(activetrack["username"])
+        $("#successimage"+rnd).show();
+        clearTimeout(timeout);
+        timeout = setTimeout(function(){ $("#overlay-wrapper").hide(); }, 3000);
+    }
+
+	</script>
 </head>
 <body>
 

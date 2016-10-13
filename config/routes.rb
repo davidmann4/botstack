@@ -6,4 +6,5 @@ Rails.application.routes.draw do
   get '/cron', to: 'application#cron'
 
   get '/images', to: 'application#images'
+
 end

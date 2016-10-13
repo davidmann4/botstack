@@ -14,13 +14,15 @@ class BaseBotLogic
 
   def self.reply_message(msg, options={})
 
+    puts @fb_params.sender
+
     options = {
       resolve_emoji: true,
       spintax: true,
       recipient: @fb_params.sender
     }.merge(options)
 
-    if @request_type == "TEXT" or @request_type == "CALLBACK"
+    #if @request_type == "TEXT" or @request_type == "CALLBACK"
 
       if(options[:resolve_emoji])
         msg = compute_emojis(msg)
@@ -36,7 +38,7 @@ class BaseBotLogic
           text: msg
         }
       )
-    end
+    #end
   end
 
   def self.reply_image(img_url)
