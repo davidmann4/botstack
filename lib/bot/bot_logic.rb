@@ -1,18 +1,16 @@
-
-
 class BotLogic < BaseBotLogic
 
-  def self.setup
+  def setup
     set_welcome_message "Welcome!"
     set_get_started_button "bot_start_payload"
     set_bot_menu
   end
 
-  def self.cron
+  def cron
     broadcast_all ":princess:"
   end
 
-  def self.bot_logic
+  def bot_logic
     ENV["DOMAIN_NAME"] = "https://82be97d0.ngrok.io"
 
     #binding.pry
@@ -29,12 +27,12 @@ class BotLogic < BaseBotLogic
     state_action 3, :onboarded
   end
 
-  def self.greeting
+  def greeting
     reply_message "To make it a little easy. Could you type your due date again just this way: 28-04-2017?"
     state_go
   end
 
-  def self.subscribe
+  def subscribe
     due_date = Date.parse get_message
 
     @current_user.profile = {due_date: due_date.to_s}
@@ -46,7 +44,7 @@ class BotLogic < BaseBotLogic
     reply_message "{Sorry I do not undestand this format|Can you try again? Format is DD/MM/YYYY}"
   end
 
-  def self.confirm
+  def confirm
     if get_message == "Yes"
       subscribe_user("pregnant")
       state_go
@@ -59,20 +57,20 @@ class BotLogic < BaseBotLogic
     end
   end
 
-  def self.onboarded
+  def onboarded
     output_current_week
   end
 
   ### helper functions
 
-  def self.calculate_current_week
+  def calculate_current_week
     user_date = Date.parse @current_user.profile[:due_date]
     server_date = Date.parse Time.now.to_s
 
     40 - ((user_date - server_date).to_i / 7)
   end
 
-  def self.output_current_week
+  def output_current_week
     current_week = calculate_current_week
     reply_message "you are in week number #{current_week}"
   end

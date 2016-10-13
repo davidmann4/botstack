@@ -4,7 +4,7 @@ Facebook::Messenger.configure do |config|
   config.app_secret = Settings.app_secret
 
   puts "\e[36m" + "Verify the bot with the following verify_token :" + Settings.verify_token + "\e[0m"
-  
 
-  BotLogic::setup()
+
+  $bot.setup()
 end
