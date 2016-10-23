@@ -10,7 +10,7 @@ class BotLogic < BaseBotLogic
   end
 
   def self.bot_logic
-    ENV["DOMAIN_NAME"] = "https://82be97d0.ngrok.io"
+    ENV["DOMAIN_NAME"] = "https://ffee6f9f.ngrok.io"
 
     #binding.pry
 
