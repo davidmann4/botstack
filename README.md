@@ -8,16 +8,16 @@ This is a base project for creating FB Chatbots. It has a state machine and User
 
 Put all your logic into lib/bot. We've already prepared everything for you to kickstart your project.
 
-**@fb_params** holds 
+**@msg_meta** holds 
 **@request_type** holds the type of the request. Could be one of the following:
 * DELIVERY (maybe will be removed in the future, to disruptive)
 * OPTIN
 * CALLBACK
 * TEXT
-* IMAGE -> @fb_params has the url to the image
-* LOCATION-> @fb_params has the long / lat 
-* AUDIO -> @fb_params has the url to the mp3 file
-* ATTACHMENT_UNKNOWN -> @fb_params has the url to the ATTACHMENT_UNKNOWN (mostly http links fucked up with fb outbound link system)
+* IMAGE -> @msg_meta has the url to the image
+* LOCATION-> @msg_meta has the long / lat 
+* AUDIO -> @msg_meta has the url to the mp3 file
+* ATTACHMENT_UNKNOWN -> @msg_meta has the url to the ATTACHMENT_UNKNOWN (mostly http links fucked up with fb outbound link system)
 **@current_user** hold infos of your current user (last seen, state machine, user id ...)
 
 ![botstack grafik-x](https://cloud.githubusercontent.com/assets/1736570/19266341/6955d374-8fa9-11e6-8454-15f0b76730f6.png)
