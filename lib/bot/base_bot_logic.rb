@@ -178,6 +178,7 @@ class BaseBotLogic
     @fb_params = fb_params
     @request_type = type
     @current_user = handle_user
+    @msg_meta = nil
 
     @state_handled = false
 
@@ -188,16 +189,16 @@ class BaseBotLogic
 
         if attachment_type == "location"
           @request_type = "LOCATION"
-          @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
+          @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]
         elsif attachment_type == "image"
           @request_type = "IMAGE"
-          @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
+          @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]
         elsif attachment_type == "audio"
           @request_type = "AUDIO"
-          @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
+          @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]
         elsif attachment_type == "fallback"
           @request_type = "ATTACHMENT_UNKNOWN"
-          @fb_params = fb_params.messaging["message"]["attachments"][0]["payload"]
+          @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]
         else
           puts "UNKNOWN ATTACHMENT: "  + attachment_type
         end
