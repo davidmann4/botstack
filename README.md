@@ -48,6 +48,10 @@ This function will render a bubble and send it to the user.
 ```ruby
  def reply_bubble
 ```
+This function will return a string along with a set of button options specified in an array.
+```ruby
+ def reply_quick_buttons(msg, options=%W(Yes No))
+```
 This function will return a string containing the message a user sent to your bot.
 ```ruby
  def get_message
