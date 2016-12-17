@@ -55,7 +55,7 @@ class BaseBotLogic
     end
   end
 
-  def self.reply_quick_reply(msg, options)
+  def self.reply_quick_buttons(msg, options)
     options ||= %W(Yes No)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
       Bot.deliver(

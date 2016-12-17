@@ -40,8 +40,8 @@ class BotLogic < BaseBotLogic
 		@current_user.profile = {due_date: due_date.to_s}
 		@current_user.save!
 
-		reply_quick_reply "Okay #{due_date.to_s}. Did I get it right?"
-		state_go		
+		reply_quick_buttons "Okay #{due_date.to_s}. Did I get it right?"
+		state_go
 	rescue ArgumentError
 		reply_message "{Sorry I do not undestand this format|Can you try again? Format is DD/MM/YYYY}"
 	end 
