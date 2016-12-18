@@ -89,7 +89,5 @@ module BotSpecHelper
         }
 
     Facebook::Messenger::Incoming.parse(payload)    
-  end 
-
-  
+  end   
 end

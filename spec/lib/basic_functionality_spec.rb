@@ -33,6 +33,12 @@ describe BaseBotLogic do
       expect(BaseBotLogic::get_request_type).to eql "AUDIO"
       expect(BaseBotLogic::get_msg_meta).to eql test_image    
     end
+
+    it "sends a message" do
+      expect(BaseBotLogic).to receive(:reply_message).with(test_message)
+      BaseBotLogic::reply_message test_message  
+    end
+    
   end
 
   describe "botstack emoji module" do
