@@ -23,7 +23,6 @@ gem 'spintax_parser'
 gem 'wkhtmltoimage-binary'
 gem 'imgkit'
 gem 'mechanize'
-gem 'messenger-ruby'
 
 gem 'facebook-messenger'
 
