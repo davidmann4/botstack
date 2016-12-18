@@ -315,7 +315,7 @@ class BaseBotLogic
   end
 
   def self.parse_emojis(content)
-    EmojiParser.tokenize()
+    EmojiParser.tokenize(content)
   end
 
   ## State Machine Module
