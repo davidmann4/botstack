@@ -20,11 +20,18 @@ describe BaseBotLogic do
       expect(BaseBotLogic::get_msg_meta).to eql test_image    
     end
 
-    it "receives an location" do
+    it "receives a location" do
       BaseBotLogic::handle_request(generate_message_location(test_coords), "TEXT") 
       expect(BaseBotLogic::get_message).to eql nil
       expect(BaseBotLogic::get_request_type).to eql "LOCATION"
       expect(BaseBotLogic::get_msg_meta).to eql test_coords    
+    end
+
+    it "receives an audio" do
+      BaseBotLogic::handle_request(generate_message_audio(test_image), "TEXT") 
+      expect(BaseBotLogic::get_message).to eql nil
+      expect(BaseBotLogic::get_request_type).to eql "AUDIO"
+      expect(BaseBotLogic::get_msg_meta).to eql test_image    
     end
   end
 

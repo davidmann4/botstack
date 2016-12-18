@@ -22,7 +22,8 @@ module BotSpecHelper
   	Facebook::Messenger::Incoming.parse(payload)  	
   end 
 
-  def generate_message_image(img_url, user=1)
+
+  def generate_message_file_attachment(type, url, user=1)
     payload = {
           'sender' => {
             'id' => '2'
@@ -37,9 +38,9 @@ module BotSpecHelper
             'text' => "",
             "attachments" => [
               {
-                "type" => "image",
+                "type" => type,
                 "payload" => {
-                  "url" => img_url
+                  "url" => url
                 }
               }
             ]
@@ -47,6 +48,22 @@ module BotSpecHelper
         }
 
     Facebook::Messenger::Incoming.parse(payload)    
+  end
+
+  def generate_message_image(url, user=1)
+    generate_message_file_attachment("image", url, user=1)
+  end 
+
+  def generate_message_audio(url, user=1)
+    generate_message_file_attachment("audio", url, user=1)
+  end 
+
+  def generate_message_video(url, user=1)
+    generate_message_file_attachment("video", url, user=1)
+  end 
+
+  def generate_message_file(url, user=1)
+    generate_message_file_attachment("file", url, user=1)
   end 
 
   def generate_message_location(location, user=1)

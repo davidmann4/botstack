@@ -216,7 +216,7 @@ class BaseBotLogic
           @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]["url"]
         elsif attachment_type == "audio"
           @request_type = "AUDIO"
-          @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]
+          @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]["url"]
         elsif attachment_type == "fallback"
           @request_type = "ATTACHMENT_UNKNOWN"
           @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]
