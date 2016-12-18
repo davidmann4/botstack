@@ -149,7 +149,6 @@ class BaseBotLogic
   end
 
   def self.handle_user
-    puts @fb_params.messaging
     user_id = @fb_params.sender["id"].to_i
     user = User.find_by_fb_id user_id
 
