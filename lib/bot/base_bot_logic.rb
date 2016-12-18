@@ -7,6 +7,9 @@ end
 
 class BaseBotLogic
 
+  def self.bot_logic
+  end
+
   def self.send_message(msg, recipient, options={})
     options.merge({recipient: recipient})
     reply_message(msg, options)
@@ -146,8 +149,7 @@ class BaseBotLogic
   end
 
   def self.handle_user
-
-    #binding.pry
+    puts @fb_params.messaging
     user_id = @fb_params.sender["id"].to_i
     user = User.find_by_fb_id user_id
 
@@ -208,8 +210,8 @@ class BaseBotLogic
     bot_logic
 
 
-    rescue Exception => e
-      puts e
+    #rescue Exception => e
+    #  puts e
   end
 
 
