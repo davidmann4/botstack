@@ -3,6 +3,11 @@ require "rails_helper"
 require "bot/base_bot_logic"
 
 describe BaseBotLogic do 
+
+  before do
+    stub_request_to_be_ok
+  end 
+
   describe "botstack base module" do
     let(:test_message) { "hello world" }
     let(:test_image) { "http://example.com/cat.png" }
@@ -37,6 +42,10 @@ describe BaseBotLogic do
     it "sends a message" do
       expect(BaseBotLogic).to receive(:reply_message).with(test_message)
       BaseBotLogic::reply_message test_message  
+    end
+
+    it "sends a message and checks the response" do
+      send_text_expect_text "hello", "NOT IMPLEMENTED" 
     end
     
   end

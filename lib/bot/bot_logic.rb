@@ -3,9 +3,9 @@
 class BotLogic < BaseBotLogic
 
 	def self.setup
-		set_welcome_message "Welcome!"
-		set_get_started_button "bot_start_payload"
-		set_bot_menu
+		#set_welcome_message "Welcome!"
+		#set_get_started_button "bot_start_payload"
+		#set_bot_menu
 	end
 
 	def self.cron

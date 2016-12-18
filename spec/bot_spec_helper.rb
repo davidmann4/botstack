@@ -89,5 +89,17 @@ module BotSpecHelper
         }
 
     Facebook::Messenger::Incoming.parse(payload)    
-  end   
+  end  
+
+  def stub_request_to_be_ok    
+    stub_request(:post, /graph.facebook.com/).
+    to_return(:status => 200, :body => "", :headers => {})
+  end
+
+  def send_text_expect_text(send_text, receive_text)    
+    expect(BaseBotLogic).to receive(:reply_message).with(receive_text)
+    BaseBotLogic::handle_request(generate_message_image(send_text), "TEXT") 
+  end
+
+
 end

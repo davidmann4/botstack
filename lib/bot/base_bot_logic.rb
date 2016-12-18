@@ -8,6 +8,7 @@ end
 class BaseBotLogic
 
   def self.bot_logic
+    reply_message "NOT IMPLEMENTED"
   end
 
   def self.get_fb_params
@@ -101,7 +102,7 @@ class BaseBotLogic
     end
   end
 
-  #TODO: maje it useful
+  #TODO: make it useful
   def self.reply_button
     if @request_type == "TEXT" or @request_type == "CALLBACK"
 

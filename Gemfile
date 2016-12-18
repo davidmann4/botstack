@@ -54,6 +54,7 @@ group :development, :test do
   gem 'pry'
   gem 'sqlite3'
   gem 'rspec-rails', '~> 3.5'
+  gem 'webmock'
 end
 
 group :development do
