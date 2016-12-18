@@ -6,6 +6,7 @@ describe BaseBotLogic do
   describe "botstack base module" do
     let(:test_message) { "hello world" }
     let(:test_image) { "http://example.com/cat.png" }
+    let(:test_coords) { { "coordinates.lat" => 10, "coordinates.long" => 10 } }
 
     it "receives a hello world message" do
       BaseBotLogic::handle_request(generate_message(test_message), "TEXT") 
@@ -17,6 +18,13 @@ describe BaseBotLogic do
       expect(BaseBotLogic::get_message).to eql nil
       expect(BaseBotLogic::get_request_type).to eql "IMAGE"
       expect(BaseBotLogic::get_msg_meta).to eql test_image    
+    end
+
+    it "receives an location" do
+      BaseBotLogic::handle_request(generate_message_location(test_coords), "TEXT") 
+      expect(BaseBotLogic::get_message).to eql nil
+      expect(BaseBotLogic::get_request_type).to eql "LOCATION"
+      expect(BaseBotLogic::get_msg_meta).to eql test_coords    
     end
   end
 
