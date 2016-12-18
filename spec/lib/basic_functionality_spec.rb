@@ -2,10 +2,8 @@ require "spec_helper"
 require "rails_helper"
 require "bot/base_bot_logic"
 
-describe BaseBotLogic do
- 
+describe BaseBotLogic do 
   describe "botstack base module" do
-
     let(:test_message) { "hello world" }
     let(:test_image) { "http://example.com/cat.png" }
 
@@ -20,11 +18,9 @@ describe BaseBotLogic do
       expect(BaseBotLogic::get_request_type).to eql "IMAGE"
       expect(BaseBotLogic::get_msg_meta).to eql test_image    
     end
-
   end
 
   describe "botstack emoji module" do
-
     let(:emoji_token) { ":cat:" }
     let(:emoji_message){ BaseBotLogic::compute_emojis(emoji_token) }
 
@@ -33,8 +29,5 @@ describe BaseBotLogic do
       message_token = BaseBotLogic::parse_emojis(BaseBotLogic::get_message)
       expect(message_token).to eql emoji_token
     end
-
   end
-
-
 end
