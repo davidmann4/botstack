@@ -10,6 +10,26 @@ class BaseBotLogic
   def self.bot_logic
   end
 
+  def self.get_fb_params
+    @fb_params
+  end
+
+  def self.get_request_type
+    @request_type
+  end
+
+  def self.get_current_user
+    @current_user
+  end
+
+  def self.get_msg_meta
+    @msg_meta
+  end
+
+  def self.get_state_handled
+    @state_handled
+  end
+
   def self.send_message(msg, recipient, options={})
     options.merge({recipient: recipient})
     reply_message(msg, options)
@@ -186,14 +206,14 @@ class BaseBotLogic
     #handle different attachments the user could send
     if type == "TEXT"
       if !fb_params.messaging["message"]["attachments"].nil?
-        attachment_type = fb_params.messaging["message"]["attachments"][0]["type"] #so wrong lol
+        attachment_type = fb_params.messaging["message"]["attachments"][0]["type"]
 
         if attachment_type == "location"
           @request_type = "LOCATION"
           @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]
         elsif attachment_type == "image"
           @request_type = "IMAGE"
-          @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]
+          @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]["url"]
         elsif attachment_type == "audio"
           @request_type = "AUDIO"
           @msg_meta = fb_params.messaging["message"]["attachments"][0]["payload"]

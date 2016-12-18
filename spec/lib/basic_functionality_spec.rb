@@ -3,14 +3,24 @@ require "rails_helper"
 require "bot/base_bot_logic"
 
 describe BaseBotLogic do
-
-  let(:test_message) { "hello world" }
-  
+ 
   describe "botstack base module" do
+
+    let(:test_message) { "hello world" }
+    let(:test_image) { "http://example.com/cat.png" }
+
     it "receives a hello world message" do
       BaseBotLogic::handle_request(generate_message(test_message), "TEXT") 
       expect(BaseBotLogic::get_message).to eql test_message
     end
+
+    it "receives an image" do
+      BaseBotLogic::handle_request(generate_message_image(test_image), "TEXT") 
+      expect(BaseBotLogic::get_message).to eql nil
+      expect(BaseBotLogic::get_request_type).to eql "IMAGE"
+      expect(BaseBotLogic::get_msg_meta).to eql test_image    
+    end
+
   end
 
   describe "botstack emoji module" do
