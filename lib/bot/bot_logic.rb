@@ -3,9 +3,11 @@
 class BotLogic < BaseBotLogic
 
 	def self.setup
+		ENV["DOMAIN_NAME"] = "https://91d1967d.ngrok.io"
 		#set_welcome_message "Welcome!"
 		#set_get_started_button "bot_start_payload"
 		#set_bot_menu
+		set_domain_whitelist
 	end
 
 	def self.cron
@@ -13,8 +15,10 @@ class BotLogic < BaseBotLogic
 	end
 
 	def self.bot_logic
-		ENV["DOMAIN_NAME"] = "https://82be97d0.ngrok.io"
+		ENV["DOMAIN_NAME"] = "https://91d1967d.ngrok.io"
 
+
+		send_webview_button("date_picker")
 		#binding.pry
 
 		if @request_type == "CALLBACK" and @fb_params.payload == "RESET_BOT"

@@ -1,5 +1,6 @@
 require 'mechanize'
 require 'spintax_parser'
+require 'openssl'
 
 class String
   include SpintaxParser
@@ -230,8 +231,9 @@ class BaseBotLogic
     bot_logic
 
 
-    #rescue Exception => e
-    #  puts e
+    rescue Exception => e
+      puts e.message
+      puts e.backtrace.join("\n")
   end
 
 
@@ -419,8 +421,62 @@ class BaseBotLogic
    #--> self.ask_questions
    #--> self.compute_answer
 
+  ## webview Module
+
+  def self.generate_webview_token(user_id)
+    OpenSSL::HMAC.hexdigest('sha1'.freeze, 
+                            Rails.application.secrets.secret_key_base,
+                            user_id)
+  end
+
+
+  def self.send_webview_button(webview, text='Webview Message Text', button_text='Open Webview')
+    params = {
+        token: generate_webview_token(@fb_params.sender["id"]),
+        user_id: @fb_params.sender["id"]
+      }.to_query
+
+    url = ENV["DOMAIN_NAME"] + "/" + webview + "?" + params
+
+    puts url
+  
+    Bot.deliver(
+        recipient: @fb_params.sender,
+        message: {
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'button',
+              text: text,
+              buttons: [
+                { 
+                  type: 'web_url',
+                  title: button_text,
+                  url: url,
+                  webview_height_ratio: "compact", #compact, tall, full 
+                  messenger_extensions: true,  
+                  fallback_url: url
+                }
+              ]
+            }
+          }
+        }
+      )
+
+
+  end
+
 
   ## Setup Module
+
+
+  def self.set_domain_whitelist
+    Facebook::Messenger::Thread.set(
+      setting_type: "domain_whitelisting",
+      whitelisted_domains: [ ENV["DOMAIN_NAME"] ],
+      domain_action_type: "add"
+    )
+  end
 
   def self.set_welcome_message(message)
     Facebook::Messenger::Thread.set(
