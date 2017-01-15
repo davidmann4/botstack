@@ -358,7 +358,7 @@ class BaseBotLogic
       @current_user.state_machine = state
     end
 
-    puts "going state: " + @current_user.state_machine.to_s
+    #puts "going state: " + @current_user.state_machine.to_s
 
     @current_user.save!
   end

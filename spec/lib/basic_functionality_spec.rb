@@ -43,10 +43,6 @@ describe BaseBotLogic do
       expect(BaseBotLogic).to receive(:reply_message).with(test_message)
       BaseBotLogic::reply_message test_message  
     end
-
-    it "sends a message and checks the response" do
-      send_text_expect_text "hello", "NOT IMPLEMENTED" 
-    end
     
   end
 

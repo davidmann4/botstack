@@ -98,7 +98,7 @@ module BotSpecHelper
 
   def send_text_expect_text(send_text, receive_text)    
     expect(BaseBotLogic).to receive(:reply_message).with(receive_text)
-    BaseBotLogic::handle_request(generate_message_image(send_text), "TEXT") 
+    BotLogic::handle_request(generate_message(send_text), "TEXT") 
   end
 
 
