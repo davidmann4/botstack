@@ -528,4 +528,18 @@ end
     )
   end
 
+  #geo utils
+  def self.get_address_from_latlng
+    #https://console.developers.google.com/flows/enableapi?apiid=geolocation&keyType=SERVER_SIDE&reusekey=true
+    response = HTTParty.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=#{@msg_meta["coordinates"]["lat"]},#{@msg_meta["coordinates"]["long"]}&key=#{Settings.googlegeo_api_key}")
+    address_infos = JSON.parse(response.body)
+    address_infos["results"][0]["formatted_address"]
+  end
+
+  def self.get_weather_from_latlng
+    response = HTTParty.get("http://api.openweathermap.org/data/2.5/weather?units=metric&lat=#{@msg_meta["coordinates"]["lat"]}&lon=#{@msg_meta["coordinates"]["long"]}&appid=#{Settings.openweathermap_api_key}")
+    weather_infos = JSON.parse(response.body)
+    weather_infos["main"]
+  end
+
 end
