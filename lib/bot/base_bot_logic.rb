@@ -528,6 +528,10 @@ end
     )
   end
 
+  def self.got_bot_menu?(option)
+    @request_type == "CALLBACK" and @fb_params.payload == "#{option.upcase}_BOT"
+  end
+
   #geo utils
   def self.get_address_from_latlng
     #https://console.developers.google.com/flows/enableapi?apiid=geolocation&keyType=SERVER_SIDE&reusekey=true
@@ -539,6 +543,7 @@ end
   def self.get_weather_from_latlng
     response = HTTParty.get("http://api.openweathermap.org/data/2.5/weather?units=metric&lat=#{@msg_meta["coordinates"]["lat"]}&lon=#{@msg_meta["coordinates"]["long"]}&appid=#{Settings.openweathermap_api_key}")
     weather_infos = JSON.parse(response.body)
+    puts weather_infos
     weather_infos["main"]
   end
 

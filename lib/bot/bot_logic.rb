@@ -1,35 +1,36 @@
 class BotLogic < BaseBotLogic
 
   def self.setup
-
+    set_bot_menu %W(Reset Info)
   end
 
   def self.bot_logic
-    #basic botstack bot with 3 states:
-    state_action 0, :greeting
-    state_action 1, :tutorial
-    state_action 2, :function
-  end
 
-  def self.greeting
-    reply_message "hello human!"
-    state_go
-  end
-
-  def self.tutorial
-    reply_message "I will multiplicate numbers by 2!"
-    state_go
-  end
-
-  def self.function    
-    result = get_message.to_i * 2
-
-    if get_message != "0" and result == 0
-      reply_message "please send me a number!"
+    if got_bot_menu? "Reset"
+      @current_user.delete
+      reply_message "Removed all your data from our servers."
       return
     end
 
-    reply_message result.to_s
+    state_action 0, :greeting
+    state_action 1, :onboarded
+  end 
+
+  def self.greeting    
+    reply_location_button "hello human, send me your location!"
+    state_go
+  end
+
+  def self.onboarded
+    if @request_type == "LOCATION"
+      weather = get_weather_from_latlng["temp"]
+      reply_message "wetter:" + weather.to_s
+
+      address = get_address_from_latlng
+      reply_message address
+    end
+    
+    reply_location_button "you can send me another location!"
   end
 
 end
