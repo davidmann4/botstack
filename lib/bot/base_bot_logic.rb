@@ -8,6 +8,11 @@ end
 
 class BaseBotLogic
 
+  def self.get_profile(user_id)
+    response = HTTParty.get("https://graph.facebook.com/v2.6/#{user_id}?fields=first_name,last_name,profile_pic,locale,timezone,gender&access_token=#{Settings.page_access_token}")
+    JSON.parse(response.body)
+  end
+
   def self.bot_logic
     reply_message "NOT IMPLEMENTED"
   end
@@ -38,14 +43,13 @@ class BaseBotLogic
   end
 
   def self.reply_message(msg, options={})
-
     options = {
       resolve_emoji: true,
       spintax: true,
-      recipient: @fb_params.sender
+      recipient: {id: @current_user.fb_id}
     }.merge(options)
 
-    if @request_type == "TEXT" or @request_type == "CALLBACK"
+    if @request_type == "TEXT" or @request_type == "CALLBACK"  or @request_type == "LOCATION"
 
       if(options[:resolve_emoji])
         msg = compute_emojis(msg)
@@ -67,7 +71,7 @@ class BaseBotLogic
   def self.reply_image(img_url)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
       Bot.deliver(
-        recipient: @fb_params.sender,
+        recipient: {id: @current_user.fb_id},
         message: {
           attachment: {
             type: 'image',
@@ -82,9 +86,9 @@ class BaseBotLogic
 
   def self.reply_quick_buttons(msg, options)
     options ||= %W(Yes No)
-    if @request_type == "TEXT" or @request_type == "CALLBACK"
+    if @request_type == "TEXT" or @request_type == "CALLBACK" or @request_type == "LOCATION"
       Bot.deliver(
-        recipient: @fb_params.sender,
+        recipient: {id: @current_user.fb_id},
         message: {
           text: msg,
           quick_replies: options.map { |option| {content_type: 'text', title: option, payload: "QUICK_#{option.upcase}"} }
@@ -92,6 +96,22 @@ class BaseBotLogic
       )
     end
   end
+
+  def self.reply_location_button(msg)
+    if @request_type == "TEXT" or @request_type == "CALLBACK"
+      Bot.deliver(
+        recipient: {id: @current_user.fb_id},
+        message:{
+          "text": msg,
+          "quick_replies":[
+            {
+              "content_type":"location",
+            }
+          ]
+        }
+      )
+    end  
+end
 
   def self.reply_html(html)
     if @request_type == "TEXT" or @request_type == "CALLBACK"
@@ -179,14 +199,15 @@ class BaseBotLogic
       user.fb_id = user_id
       user.state_machine = 0
       user.last_message_received = Time.now
+      user.profile = get_profile(user_id)
     end
 
     if @request_type == "TEXT" or @request_type == "CALLBACK"
 
       # reset statemachine if longer ago than 5 minutes
-      if Time.now - user.last_message_received > (60 * 5)
+      if Settings.state_machine_reset_to > 0 and  Time.now - user.last_message_received > (60 * 5)
         @current_user = user
-        state_reset
+        state_reset        
       end
 
       user.last_message_received = Time.now
@@ -343,7 +364,7 @@ class BaseBotLogic
 
   ## State Machine Module
   def self.state_action(required_state, action)
-    if @request_type == "TEXT" or @request_type == "CALLBACK"
+    if @request_type == "TEXT" or @request_type == "CALLBACK" or @request_type == "LOCATION"
       if @state_handled == false and @current_user.state_machine == required_state
         self.send(action)
         @state_handled = true
