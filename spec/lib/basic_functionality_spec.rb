@@ -11,6 +11,7 @@ describe BaseBotLogic do
   describe "botstack base module" do
     let(:test_message) { "hello world" }
     let(:test_image) { "http://example.com/cat.png" }
+    let(:test_audio) { "http://example.com/cat.mp3" }
     let(:test_coords) { { "coordinates.lat" => 10, "coordinates.long" => 10 } }
 
     it "receives a hello world message" do
@@ -33,7 +34,7 @@ describe BaseBotLogic do
     end
 
     it "receives an audio" do
-      BaseBotLogic::handle_request(generate_message_audio(test_image), "TEXT") 
+      BaseBotLogic::handle_request(generate_message_audio(test_audio), "TEXT") 
       expect(BaseBotLogic::get_message).to eql nil
       expect(BaseBotLogic::get_request_type).to eql "AUDIO"
       expect(BaseBotLogic::get_msg_meta).to eql test_image    
